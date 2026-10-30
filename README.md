@@ -5,25 +5,21 @@ A full-stack workout tracker: build a workout from an exercise catalog, log warm
 [![API](https://github.com/GeoLarry/fitness-track/actions/workflows/api.yml/badge.svg)](https://github.com/GeoLarry/fitness-track/actions/workflows/api.yml)
 [![Web](https://github.com/GeoLarry/fitness-track/actions/workflows/web.yml/badge.svg)](https://github.com/GeoLarry/fitness-track/actions/workflows/web.yml)
 
-## Current state
+## Features
 
-The Angular app in `web/` is moving from Firebase to the .NET API in `api/` (built from my `dotnet-auth-starter` template).
-
-- Sign-in already goes through the API.
-- The exercise catalog is served by the API, but the app still reads it from **Firestore** until the next step of the roadmap.
-
-What the app does today:
+The Angular app in `web/` runs entirely on the .NET API in `api/`, built from my `dotnet-auth-starter` template.
 
 - Sign up with a username, log in with email or username, stay signed in across reloads; roles User, Coach and Administrator
 - Workout page with tabs: Planned, New and Completed (Planned and Completed are placeholders)
-- Current workout: a timer, one card per exercise with warm-ups and sets (weight, reps, drag to reorder)
-- Exercise picker with search, exercise info, and custom exercises (muscles, equipment, instructions)
+- Current workout: a rest timer, one card per exercise with warm-ups and sets (weight, reps, drag to reorder); workouts are not saved yet
+- Exercise picker over a catalog of 383 exercises, with search and exercise info (equipment, muscles, steps)
+- Custom exercises (muscles, equipment, numbered steps), visible only to the user who created them
 
 ## Tech stack
 
 | Part | Technologies |
 |---|---|
-| Frontend (`web/`) | Angular 21, standalone components, zoneless change detection, Angular Material, ESLint, Firebase (to be replaced by the API) |
+| Frontend (`web/`) | Angular 21, standalone components, signals, `httpResource`, zoneless change detection, OnPush, Angular Material, ESLint |
 | Backend (`api/`) | .NET 10 Minimal API, EF Core (SQLite / SQL Server), JWT, permission-based authorization, Bogus seeding |
 | Tests | Vitest unit tests for the Angular app (jsdom), xUnit integration tests over the real HTTP pipeline |
 | CI | GitHub Actions, one workflow per folder |
@@ -55,7 +51,7 @@ npm install
 npm start
 ```
 
-App on http://localhost:4200. The app calls the API on its own origin (`/api`); the dev server proxies those requests to http://localhost:5080 (`web/proxy.conf.json`). Until the catalog step of the roadmap, the exercise list still comes from the Firebase project `fitness-tracker-83406`.
+App on http://localhost:4200. The app calls the API on its own origin (`/api`); the dev server proxies those requests to http://localhost:5080 (`web/proxy.conf.json`).
 
 The API has no migrations yet: after pulling changes to its data model, delete `api/src/Starter.Api/app.db` once so it is recreated.
 
@@ -65,7 +61,7 @@ The API has no migrations yet: after pulling changes to its data model, delete `
 - [ ] Upgrade the web app: Angular 22, drop the unused SSR server, Vitest instead of Karma, ESLint, remove dead code
 - [x] Sign-in through the API: JWT auth service, interceptor and guards in the web app (the existing screens stay), Coach role in the API
 - [x] Exercise catalog on the API: exercises, muscles, equipment, seeded from `docs/AppData.xlsx`
-- [ ] The web app reads the catalog from the API; remove Firebase
+- [x] The web app reads the catalog from the API; Firebase removed
 - [ ] Save a workout: exercises, warm-ups and sets with weight and reps, duration from the timer
 - [ ] Completed workouts: history per user
 - [ ] Planned workouts: templates, start a workout from a plan

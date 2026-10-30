@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,83 +7,90 @@ import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
-import { Exercise, Muscle, Equipment } from '../../../exercise.model';
-import { TrainingService } from '../../../training.service';
-import { map, Observable } from 'rxjs';
-import { AsyncPipe } from '@angular/common';
+import { ExerciseCatalogService } from '../../../exercise-catalog.service';
+import { Exercise } from '../../../../models/exercise.model';
+import { apiErrorMessage } from '../../../../shared/http/api-error';
 
+// Creates a custom exercise for the signed-in user and closes with it once saved.
 @Component({
   selector: 'app-custom-exercise-dialog',
-  standalone: true,
-  imports: [MatExpansionModule, MatFormFieldModule, MatInputModule, MatListModule, MatSelectModule, MatButtonModule, FormsModule, AsyncPipe],
+  imports: [MatExpansionModule, MatFormFieldModule, MatInputModule, MatListModule, MatSelectModule, MatButtonModule, FormsModule],
   templateUrl: './custom-exercise-dialog.html',
   styleUrl: './custom-exercise-dialog.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomExerciseDialog {
-  private dialogRef = inject<MatDialogRef<CustomExerciseDialog>>(MatDialogRef);
-  private trainingService = inject(TrainingService);
+  private dialogRef = inject<MatDialogRef<CustomExerciseDialog, Exercise>>(MatDialogRef);
+  private catalog = inject(ExerciseCatalogService);
 
-  muscles$!: Observable<Muscle[]>;
-  equipment$!: Observable<Equipment[]>;
+  readonly muscles = this.catalog.muscles.value;
+  readonly equipment = this.catalog.equipment.value;
 
-  exercise: Exercise = {
-    id: crypto.randomUUID(),   // temporary id, replaced when the exercise is saved
-    name: '',
-    description: '',
-    instructions: '',
-    primaryMuscleIds: [],
-    secondaryMuscleIds: [],
-    equipmentId: '',
-    isCustom: false,
-    images: []
-  };
+  readonly name = signal('');
+  readonly description = signal('');
+  readonly instructions = signal('');
+  readonly equipmentId = signal<number | null>(null);
+  readonly primaryMuscleIds = signal<number[]>([]);
+  readonly secondaryMuscleIds = signal<number[]>([]);
 
-  constructor() {
-    this.muscles$ = this.trainingService.muscles$.pipe(
-      map(muscles => [...muscles].sort((a, b) => a.name.localeCompare(b.name)))
-    );
-    this.equipment$ = this.trainingService.equipment$.pipe(
-      map(equipment => [...equipment].sort((a, b) => a.name.localeCompare(b.name)))
-    );
+  readonly isSaving = signal(false);
+  readonly error = signal<string | null>(null);
 
-    this.trainingService.fetchMuscles();
-    this.trainingService.fetchEquipment();
-  }
-
+  // Enter starts a new numbered step instead of a plain line break.
   onEnter(event: Event) {
     event.preventDefault();
-
     const textarea = event.target as HTMLTextAreaElement;
-    const value = textarea.value;
 
-    const lines = value.split('\n').filter(l => l.trim() !== '');
+    const steps = textarea.value
+      .split('\n')
+      .map(line => line.replace(/^\d+\.\s*/, '').trim())
+      .filter(step => step !== '')
+      .map((step, i) => `${i + 1}. ${step}`);
 
-    const numbered = lines.map((line, i) => {
-      // Remove existing numbering if user edits
-      const clean = line.replace(/^\d+\.\s*/, '');
-      return `${i + 1}. ${clean}`;
-    });
+    this.instructions.set([...steps, `${steps.length + 1}. `].join('\n'));
 
-    this.exercise.instructions = numbered.join('\n');
-
-    // Move cursor to end
+    // Move the cursor to the end once the new value is rendered.
     setTimeout(() => {
       textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
     });
   }
 
-  toggle(list: string[], id: string) {
-    const i = list.indexOf(id);
-    if (i === -1) list.push(id);
-    else list.splice(i, 1);
+  // A muscle is either primary or secondary: picking it in one list removes it from the other.
+  toggleMuscle(kind: 'primary' | 'secondary', id: number) {
+    const [list, other] = kind === 'primary'
+      ? [this.primaryMuscleIds, this.secondaryMuscleIds]
+      : [this.secondaryMuscleIds, this.primaryMuscleIds];
+
+    list.update(ids => ids.includes(id) ? ids.filter(i => i !== id) : [...ids, id]);
+    other.update(ids => ids.filter(i => i !== id));
   }
 
   async save() {
-    await this.trainingService.addExercise(this.exercise);
-    this.dialogRef.close(this.exercise);
+    if (!this.name().trim() || this.isSaving()) return;
+
+    this.isSaving.set(true);
+    this.error.set(null);
+    try {
+      const exercise = await this.catalog.createExercise({
+        name: this.name().trim(),
+        description: this.description().trim() || null,
+        // Without the empty step a final Enter leaves behind.
+        instructions: this.instructions().replace(/(^|\n)\d+\.\s*$/, '').trim() || null,
+        typeId: null,
+        equipmentId: this.equipmentId(),
+        primaryMuscleIds: this.primaryMuscleIds(),
+        secondaryMuscleIds: this.secondaryMuscleIds(),
+      });
+      this.dialogRef.close(exercise);
+    } catch (error) {
+      // e.g. "An exercise named 'Bench Press' already exists."
+      this.error.set(apiErrorMessage(error));
+    } finally {
+      this.isSaving.set(false);
+    }
   }
 
   cancel() {
-    this.dialogRef.close(null);
+    this.dialogRef.close();
   }
 }

@@ -1,7 +1,7 @@
 <div class="dialog-wrapper">
     <!-- HEADER -->
     <div class="dialog-header">
-        <button mat-icon-button class="back-btn" (click)="close()">
+        <button mat-icon-button class="back-btn" aria-label="Back" (click)="close()">
             <mat-icon>arrow_back</mat-icon>
         </button>
 
@@ -11,33 +11,37 @@
         <div class="header-spacer"></div>
     </div>
 
-    @if(loading$ | async) {
+    @if (isLoading()) {
     <div class="loading">Loading...</div>
-    }
-    @else {
+    } @else if (loadFailed()) {
+    <div class="loading">
+        <p>The exercises could not be loaded.</p>
+        <button mat-stroked-button (click)="retry()">Try again</button>
+    </div>
+    } @else {
     <!-- SEARCH FIELD -->
     <mat-form-field appearance="outline" class="search-field">
         <mat-label>Search exercise</mat-label>
-        <input matInput (input)="setSearch($any($event.target).value)" placeholder="Type to search..." />
+        <input matInput [value]="search()" (input)="search.set($any($event.target).value)" placeholder="Type to search..." />
         <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
 
     <!-- EXERCISES LIST -->
     <mat-list class="exercise-list">
-        @for(exercise of (filteredExercises$ | async) ?? []; track exercise.id) {
+        @for (exercise of filteredExercises(); track exercise.id) {
         <mat-list-item class="exercise-item">
             <div class="exercise-row">
                 <div class="exercise-choice" role="button" tabindex="0" (click)="selectExercise(exercise)" (keydown.enter)="selectExercise(exercise)">
                     <span class="exercise-name">{{ exercise.name }}</span>
                 </div>
-                <div>
-                    <mat-icon class="info-icon" (click)="openInfo(exercise, $event)">help_outline</mat-icon>
-                </div>
+                <button mat-icon-button class="info-icon" [attr.aria-label]="'About ' + exercise.name" (click)="openInfo(exercise)">
+                    <mat-icon>help_outline</mat-icon>
+                </button>
             </div>
         </mat-list-item>
         }
         @empty {
-        <li>There are no exercises stored yet.</li>
+        <li>{{ search() ? 'No exercise matches your search.' : 'There are no exercises stored yet.' }}</li>
         }
     </mat-list>
 
@@ -48,7 +52,5 @@
             <span>Custom Exercise</span>
         </button>
     </div>
-
     }
-
 </div>

@@ -1,24 +1,29 @@
-import { ChangeDetectorRef, Component, OnDestroy, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 
+// Rest timer: counts down from a time the user can edit (tap the time), then buzzes.
 @Component({
   selector: 'app-timer',
   imports: [MatIconModule, MatButtonModule, FormsModule],
   templateUrl: './timer.html',
   styleUrl: './timer.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Timer implements OnDestroy {
-  private cd = inject(ChangeDetectorRef);
+export class Timer {
+  readonly minutes = signal(0);
+  readonly seconds = signal(30);
 
-  initialMinutes = 0;
-  initialSeconds = 30;
+  readonly remaining = signal(30);
+  readonly isRunning = signal(false);
+  readonly editing = signal(false);
 
-  remaining = 30; // in seconds
-  interval?: ReturnType<typeof setInterval>;
-  isRunning = false;
-  editing = false;
+  private interval?: ReturnType<typeof setInterval>;
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => this.stop());
+  }
 
   /** Format to mm:ss */
   format(sec: number): string {
@@ -27,45 +32,48 @@ export class Timer implements OnDestroy {
     return `${m}:${s}`;
   }
 
-  /** Enter edit mode */
   enableEdit() {
-    this.editing = true;
+    this.editing.set(true);
   }
 
-  /** Save edited time */
+  // Seconds above 59 carry over into minutes; negative or empty values count as 0.
   saveEdit() {
-    const total = this.initialMinutes * 60 + this.initialSeconds;
-    this.remaining = total;
-    this.editing = false;
+    this.remaining.set(this.startTime());
+    this.minutes.set(Math.floor(this.remaining() / 60));
+    this.seconds.set(this.remaining() % 60);
+    this.editing.set(false);
   }
 
   toggleTimer() {
-    this.isRunning = !this.isRunning;
-
-    if (this.isRunning) {
-      this.interval = setInterval(() => {
-        if (this.remaining > 0) {
-          this.remaining--;
-          this.cd.detectChanges();
-        } else {
-          this.isRunning = false;
-          clearInterval(this.interval);
-          navigator.vibrate?.(200); // Optional haptic
-        }
-      }, 1000);
-    } else {
-      clearInterval(this.interval);
+    if (this.isRunning()) {
+      this.stop();
+      return;
     }
 
+    this.isRunning.set(true);
+    this.interval = setInterval(() => {
+      if (this.remaining() > 0) {
+        this.remaining.update(r => r - 1);
+      } else {
+        this.stop();
+        navigator.vibrate?.(200);
+      }
+    }, 1000);
   }
 
   reset() {
-    this.remaining = this.initialMinutes * 60 + this.initialSeconds;
-    this.isRunning = false;
-    clearInterval(this.interval);
+    this.stop();
+    this.remaining.set(this.startTime());
   }
 
-  ngOnDestroy() {
+  private startTime(): number {
+    const whole = (value: number) => Math.max(0, Math.floor(Number(value) || 0));
+    return whole(this.minutes()) * 60 + whole(this.seconds());
+  }
+
+  private stop() {
     clearInterval(this.interval);
+    this.interval = undefined;
+    this.isRunning.set(false);
   }
 }
