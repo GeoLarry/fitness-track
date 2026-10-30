@@ -1,0 +1,48 @@
+.dialog-wrapper {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+}
+
+.form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 16px;
+}
+
+.cdk-overlay-pane {
+    max-height: 100vh !important;
+}
+
+.full-screen-dialog .cdk-overlay-pane {
+    max-height: 100vh !important;
+}
+
+.ce-cancel-btn {
+    border-color: #FF2C2C;
+    color: #FF2C2C;
+}
+
+.ce-save-btn {
+    border-color: #008000;
+    color: #008000;
+}
+
+/* .actions {
+    position: sticky;
+    bottom: 0;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    }  */
+
+/* background: white; 
+    border-top: 1px solid #ddd; */

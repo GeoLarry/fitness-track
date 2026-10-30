@@ -1,0 +1,117 @@
+export const ExerciseTypeCollection = [
+    {name: 'Strength'},
+    {name: 'Cardio'},
+]
+export const ExtrasCollection = [
+    { name: 'Extra weight' },
+    { name: 'Assisted weight' }
+]
+export const MuscleCollection = [
+    { name: 'Abs' },
+    { name: 'Back' },
+    { name: 'Biceps' },
+    { name: 'Hamstrings,' },
+    { name: 'Adductors' },
+    { name: 'Triceps' },
+    { name: 'Quads' },
+    { name: 'Shoulders' },
+    { name: 'Back' },
+    { name: 'Hip flexor' },
+    { name: 'Forearm' },
+    { name: 'Obliques' },
+    { name: 'Neck' },
+    { name: 'Lower back' },
+    { name: 'Lats' },
+    { name: 'Trapezius' },
+    { name: 'Calves' },
+    { name: 'Tibialis anterior' },
+    { name: 'Tibialis anterior' },
+    { name: 'Rear delts' },
+    { name: 'Front delts' },
+    { name: 'Middle delts' },
+]
+
+export const EquipmentCollection = [
+    { name: 'Barbell' },
+    { name: 'Dumbell' },
+    { name: 'Cable machine' },
+    { name: 'Free weight machine' },
+    { name: 'Kettlebell' },
+    { name: 'Body weight' },
+    { name: 'Resistance band' },
+    { name: 'Other' }
+]
+export const VariablesCollection = [
+    { name: 'Reps' },
+    { name: 'Weight' },
+    { name: 'Body weight' },
+    { name: 'Distance' },
+    { name: 'Height' },
+    { name: 'Time' },
+]
+// export const muscleGroups = [
+//     { name: 'Abs' },
+//     { name: 'Back' },
+//     { name: 'Biceps' },
+//     { name: 'Chest' },
+//     { name: 'Humstrings' },
+//     { name: 'Forearms' },
+//     { name: 'Glutes' },
+//     { name: 'Quads' },
+//     { name: 'Neck' },
+//     { name: 'Shoulder' },
+//     { name: 'Triceps' },
+// ] 
+
+// export const chestExercises = [
+//     { name: 'Bench Press' },
+//     { name: 'Incline Dumbbell Press' },
+//     { name: 'Bar Dips' },
+//     { name: 'Standing Cable Chest Fly' },
+// ]
+
+// export const chestExercises = [
+//     { name: 'Assisted Dip' },
+//     { name: 'Band-Assisted Bench Press' },
+//     { name: 'Bar Dip' },
+//     { name: 'Bench Press' },
+//     { name: 'Bench Press Against Band' },
+//     { name: 'Board Press' },
+//     { name: 'Cable Chest Press' },
+//     { name: 'Clap Push-Up' },
+//     { name: 'Close-Grip Bench Press' },
+//     { name: 'Close-Grip Feet-Up Bench Press' },
+//     { name: 'Cobra Push-Up' },
+//     { name: 'Decline Bench Press' },
+//     { name: 'Decline Push-Up' },
+//     { name: 'Dumbbell Chest Fly' },
+//     { name: 'Dumbbell Chest Press' },
+//     { name: 'Dumbbell Decline Chest Press' },
+//     { name: 'Dumbbell Floor Press' },
+//     { name: 'Dumbbell Pullover' },
+//     { name: 'Feet-Up Bench Press' },
+//     { name: 'Floor Press' },
+//     { name: 'Incline Bench Press' },
+//     { name: 'Incline Dumbbell Press' },
+//     { name: 'Incline Push-Up' },
+//     { name: 'Kettlebell Floor Press' },
+//     { name: 'Kneeling Incline Push-Up' },
+//     { name: 'Kneeling Push-Up' },
+//     { name: 'Machine Chest Fly' },
+//     { name: 'Machine Chest Press' },
+//     { name: 'Pec Deck' },
+//     { name: 'Pin Bench Press' },
+//     { name: 'Plank to Push-Up' },
+//     { name: 'Push-Up' },
+//     { name: 'Push-Up Against Wall' },
+//     { name: 'Push-Ups With Feet in Rings' },
+//     { name: 'Resistance Band Chest Fly' },
+//     { name: 'Ring Dip' },
+//     { name: 'Seated Cable Chest Fly' },
+//     { name: 'Smith Machine Bench Press' },
+//     { name: 'Smith Machine Incline Bench Press' },
+//     { name: 'Smith Machine Reverse Grip Bench Press' },
+//     { name: 'Standing Cable Chest Fly' },
+//     { name: 'Standing Resistance Band Chest Fly' },
+// ]
+

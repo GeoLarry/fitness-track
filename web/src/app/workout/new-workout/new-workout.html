@@ -1,0 +1,22 @@
+<section class="new-workout-container">
+    <form #fWorkout="ngForm" (ngSubmit)="onStartWorkout(fWorkout)">
+        <mat-card class="new-workout-card">
+            <mat-card-header>
+                <mat-card-title> Start a new workout!</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <mat-form-field>
+                    <mat-label>Choose an option</mat-label>
+                    <mat-select ngModel name="workout" required>
+                        @for (workout of workoutOptions; track workout.id ) {
+                        <mat-option [value]="workout.id">{{workout.message}}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            </mat-card-content>
+            <mat-card-actions>
+                <button type="submit" matButton [disabled]="fWorkout.invalid">Start</button>
+            </mat-card-actions>
+        </mat-card>
+    </form>
+</section>

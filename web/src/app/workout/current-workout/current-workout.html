@@ -1,0 +1,28 @@
+<section class="current-workout-container">
+    <div class="cw-header">
+        <div class="cw-controls">
+            <button mat-fab class="cw-clear-btn">
+                <mat-icon>clear</mat-icon>
+            </button>
+
+            <div class="cw-controls-right">
+                <button mat-fab class="cw-done-btn">
+                    <mat-icon>check</mat-icon>
+                </button>
+            </div>
+        </div>
+        <div class="exercise-btn">
+            <button mat-raised-button class="cw-add-ex" (click)="openExercisesPopup()">
+                <mat-icon>add</mat-icon>
+                <span>Exercise</span>
+            </button>
+        </div>
+    </div>
+    @for(card of exerciseCards(); track card) {
+    <app-exercise-card [exercise]="card" (remove)="deleteCard(card)"></app-exercise-card>
+    }
+    <div class="cw-footer">
+        <div class="cw-timer"></div>
+    </div>
+    <app-timer></app-timer>
+</section>

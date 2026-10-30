@@ -1,0 +1,146 @@
+.dialog-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 16px;
+  position: relative;
+}
+
+.title {
+  margin: 0 0 16px 0;
+  font-weight: 600;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 12px;
+}
+
+.back-btn {
+  flex: 0 0 auto;
+}
+
+.title {
+  flex: 1;
+  text-align: center;
+  margin: 0;
+}
+
+.header-spacer {
+  width: 40px;
+  /* same visual width as back button */
+}
+
+.search-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
+  padding: 8px;
+}
+
+.exercise-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.custom-btn {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.secondary {
+  font-size: 13px;
+  color: gray;
+}
+
+.loading {
+  margin: auto;
+  text-align: center;
+}
+
+.dialog-wrapper {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* center horizontally */
+}
+
+.exercise-list {
+  width: 100%;
+  /* full width */
+  max-width: 600px;
+  /* optional max width */
+  padding: 0;
+}
+
+.exercise-item {
+  display: flex;
+  justify-content: space-between;
+  /* stretch item and put icon at right */
+  width: 100%;
+  /* full width row */
+  box-sizing: border-box;
+}
+
+.exercise-name {
+  flex: 1;
+  /* take all available space */
+  text-align: left;
+}
+
+.info-btn {
+  margin-left: 8px;
+}
+
+.exercise-item {
+  width: 100%;
+  padding: 8px 16px;
+}
+
+.exercise-choice {
+  width: 100%;
+}
+
+.exercise-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* name left, icon right */
+  width: 100%;
+  cursor: pointer;
+}
+
+.exercise-name {
+  flex: 1;
+  /* take remaining space */
+  text-align: left;
+}
+
+.info-icon {
+  cursor: pointer;
+}
+
+.content {
+  width: 100%;
+}
+
+.search-field {
+  width: 100%;
+}
+
+.exercise-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cw-add-ex {
+  border: 2px solid #2d3038;
+}

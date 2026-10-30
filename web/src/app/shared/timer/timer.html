@@ -1,0 +1,33 @@
+<div class="timer-bar">
+
+  <!-- LEFT: Reset -->
+  <button mat-icon-button (click)="reset()">
+    <mat-icon>restart_alt</mat-icon>
+  </button>
+
+  <!-- CENTER: Time -->
+  @if(!editing) {
+  <div class="time-display" (click)="enableEdit()">
+    {{ format(remaining) }}
+  </div>
+  }
+
+  <!-- EDIT MODE -->
+  @if(editing) {
+  <div class="edit-display">
+    <input type="number" [(ngModel)]="initialMinutes" min="0" class="time-input" inputmode="numeric" />
+    :
+    <input type="number" [(ngModel)]="initialSeconds" min="0" max="59" class="time-input" inputmode="numeric" />
+
+    <button mat-icon-button (click)="saveEdit()">
+      <mat-icon>check</mat-icon>
+    </button>
+  </div>
+  }
+
+  <!-- RIGHT: Play / Pause -->
+  <button mat-icon-button (click)="toggleTimer()">
+    <mat-icon>{{ isRunning ? 'pause' : 'play_arrow' }}</mat-icon>
+  </button>
+
+</div>

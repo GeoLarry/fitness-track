@@ -1,0 +1,16 @@
+@if(!ongoingWorkout) {
+<mat-tab-group [selectedIndex]="selectedTabIndex">
+    <mat-tab label="Planned Workouts">
+        <app-planned-workouts></app-planned-workouts>
+    </mat-tab>
+    <mat-tab label="New Workout">
+        <app-new-workout></app-new-workout>
+    </mat-tab>
+    <mat-tab label="Completed Workouts">
+        <app-completed-workouts></app-completed-workouts>
+    </mat-tab>
+</mat-tab-group>
+}
+@else {
+<app-current-workout></app-current-workout>
+}

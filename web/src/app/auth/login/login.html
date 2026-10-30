@@ -1,0 +1,23 @@
+<section>
+    <form #LoginForm="ngForm" (ngSubmit)="onSubmit(LoginForm)">
+        <!-- Email -->
+        <mat-form-field hintLabel="Please enter a valid email">
+            <input matInput type="email" placeholder="Your email *" ngModel name="email" email required
+                #emailInput="ngModel" />
+        </mat-form-field>
+        <!-- Password -->
+        <mat-form-field hintLabel="Please enter your password">
+            <input matInput type="password" placeholder="Your password *" ngModel name="password" required minlength="8"
+                #pwInput="ngModel" />
+        </mat-form-field>
+        <!-- Remember me -->
+        <mat-checkbox ngModel name="agree" required>Remeber me</mat-checkbox>
+        <button type="submit" mat-raised-button color="primary" [disabled]="LoginForm.invalid">
+            @if(isLoading){
+            <mat-spinner></mat-spinner>
+            } @else{
+            <span>Submit</span>
+            }
+        </button>
+    </form>
+</section>

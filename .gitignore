@@ -36,3 +36,6 @@ Thumbs.db
 CLAUDE.md
 **/CLAUDE.md
 .claude/
+
+## Firebase deploy cache
+.firebase/

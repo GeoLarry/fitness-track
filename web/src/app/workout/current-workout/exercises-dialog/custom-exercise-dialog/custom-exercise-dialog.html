@@ -1,0 +1,83 @@
+<div class="dialog-wrapper">
+
+    <h2 class="title">Custom Exercise</h2>
+
+    <form class="form" #CustomExerciseForm="ngForm">
+        <!-- NAME -->
+        <mat-form-field appearance="outline">
+            <mat-label>Exercise name</mat-label>
+            <input matInput [(ngModel)]="exercise.name" name="name" required />
+        </mat-form-field>
+
+        <!-- DESCRIPTION -->
+        <mat-form-field appearance="outline">
+            <mat-label>Description</mat-label>
+            <textarea matInput rows="3" [(ngModel)]="exercise.description" name="description">
+      </textarea>
+        </mat-form-field>
+
+        <!-- INSTRUCTIONS -->
+        <mat-form-field appearance="outline">
+            <mat-label>Instructions</mat-label>
+            <textarea matInput rows="5" [(ngModel)]="exercise.instructions" name="instructions" (keydown.enter)="onEnter($event)">
+      </textarea>
+        </mat-form-field>
+
+        <!-- EQUIPMENT -->
+        <mat-form-field>
+            <mat-label>Equipment</mat-label>
+            <mat-select>
+                @for (equipment of (equipment$ | async) ?? []; track equipment.id) {
+                <mat-option [value]="equipment.id">{{equipment.name}}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <mat-accordion multi>
+            <!-- PRIMARY MUSCLES -->
+            <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Primary muscles
+                    </mat-panel-title>
+                    <mat-panel-description>
+                        {{ exercise.primaryMuscleIds.length }} selected
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                <mat-selection-list>
+                    @for (m of (muscles$ | async) ?? []; track m.id) {
+                    <mat-list-option [selected]="exercise.primaryMuscleIds?.includes(m.id)"
+                        (click)="toggle(exercise.primaryMuscleIds!, m.id)">
+                        {{ m.name }}
+                    </mat-list-option>
+                    }
+                </mat-selection-list>
+            </mat-expansion-panel>
+
+            <!-- SECONDARY MUSCLES -->
+            <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Secondary muscles
+                    </mat-panel-title>
+                    <mat-panel-description>
+                        {{ exercise.secondaryMuscleIds.length }} selected
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                <mat-selection-list>
+                    @for (m of (muscles$ | async) ?? []; track m.id) {
+                    <mat-list-option [selected]="exercise.secondaryMuscleIds?.includes(m.id)"
+                        (click)="toggle(exercise.secondaryMuscleIds!, m.id)">
+                        {{ m.name }}
+                    </mat-list-option>
+                    }
+                </mat-selection-list>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </form>
+
+    <div class="actions">
+        <button class="ce-cancel-btn" mat-stroked-button (click)="cancel()">Cancel</button>
+        <button class="ce-save-btn" mat-stroked-button color="primary" (click)="save()" [disabled]="CustomExerciseForm.invalid">Save</button>
+    </div>
+</div>

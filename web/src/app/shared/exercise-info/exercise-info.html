@@ -1,0 +1,79 @@
+<div class="info-wrapper">
+
+    <!-- HEADER -->
+    <div class="info-header">
+        <h2>{{ data.name }}</h2>
+    </div>
+
+    <!-- IMAGE / MUSCLE MAP -->
+    @if (data.images?.length) {
+    <div class="image-container" (click)="nextImage()">
+        <img [src]="data.images[currentImage]" alt="exercise image" />
+
+        @if (data.images.length > 1) {
+        <div class="image-dots">
+            @for (img of data.images; let i = $index; track i) {
+            <span class="dot" [class.active]="i === currentImage"></span>
+            }
+        </div>
+        }
+    </div>
+    }
+
+    <!-- MUSCLES WORKED -->
+    @if ((primaryMuscles$ | async)?.length || (secondaryMuscles$ | async)?.length) {
+    <mat-card>
+        <mat-card-header>
+            <h2>Muscles worked</h2>
+        </mat-card-header>
+        <mat-card-content>
+            <!-- PRIMARY -->
+            <div class="muscles-container">
+
+                @if ((primaryMuscles$ | async)?.length) {
+                <div class="muscle-box primary">
+                    <h3>Primary muscles</h3>
+
+                    @for (m of (primaryMuscles$ | async)!; track m.id) {
+                    <div class="muscle-item">{{ m.name }}</div>
+                    }
+                </div>
+                }
+
+                @if ((secondaryMuscles$ | async)?.length) {
+                <div class="muscle-box secondary">
+                    <h3>Secondary muscles</h3>
+
+                    @for (m of (secondaryMuscles$ | async)!; track m.id) {
+                    <div class="muscle-item">{{ m.name }}</div>
+                    }
+                </div>
+                }
+
+            </div>
+        </mat-card-content>
+    </mat-card>
+    }
+    <!-- INSTRUCTIONS -->
+    @if (instructionsList.length) {
+    <mat-card>
+        <mat-card-header>
+            <h2>Instructions</h2>
+        </mat-card-header>
+        <mat-card-content>
+            <ol>
+                @for (step of instructionsList; track $index) {
+                <li>{{ step }}</li><br />
+                }
+            </ol>
+        </mat-card-content>
+    </mat-card>
+    }
+    <!-- FIXED CLOSE BUTTON -->
+    <div class="fixed-footer-button">
+        <button mat-raised-button color="primary" class="footer-btn" (click)="close()">
+            Close
+        </button>
+    </div>
+
+</div>

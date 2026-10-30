@@ -1,0 +1,47 @@
+<section>
+    <form #SignUpForm="ngForm" (ngSubmit)="onSubmit(SignUpForm)">
+        <!-- Email -->
+        <mat-form-field>
+            <input 
+            matInput 
+            type="email" 
+            placeholder="Your email *" 
+            ngModel 
+            name="email" 
+            email
+            required
+            #emailInput="ngModel"
+            />
+            @if(emailInput.hasError('required')) {
+                <mat-error>Email must not be empty.</mat-error>
+            }
+            @if(!emailInput.hasError('required')) {
+                <mat-error >Email is ivalid.</mat-error>
+            }
+        </mat-form-field>
+        <!-- Password -->
+        <mat-form-field hintLabel="*Should be at least 8 characters long">
+            <input 
+            matInput 
+            type="password" 
+            placeholder="Type a password *" 
+            ngModel 
+            name="password" 
+            required
+            minlength="8"
+            #pwInput="ngModel"
+            />
+            <mat-hint align="end"> {{ pwInput.value?.length }} / 8</mat-hint>
+            <mat-error>Should be at least 8 characters long</mat-error>
+        </mat-form-field>
+        <!-- Birthdate -->
+        <mat-form-field>
+            <input matInput placeholder="Your birthdate" [matDatepicker]="picker" (click)="picker.open()" ngModel name="birthdate" required readonly />
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+        <!-- Terms of agriement -->
+            <mat-checkbox ngModel name="agree" required>Agree to terms and conditions.</mat-checkbox>
+        <button type="submit" mat-raised-button color="primary" [disabled]="SignUpForm.invalid">Submit</button>
+    </form>
+</section>

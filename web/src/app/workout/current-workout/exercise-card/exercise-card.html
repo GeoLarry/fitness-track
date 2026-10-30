@@ -1,0 +1,122 @@
+<mat-card class="exercise-card">
+    <mat-card-header>
+        <mat-card-title>
+            {{exercise.name}}
+            <!-- <input placeholder="Exercise name" class="exercise-title-input" matInput /> -->
+        </mat-card-title>
+
+        <button mat-icon-button [matMenuTriggerFor]="cardMenu">
+            <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #cardMenu="matMenu">
+            <button mat-menu-item (click)="clearCard()">
+                <mat-icon>clear</mat-icon>
+                Clear
+            </button>
+            <button mat-menu-item (click)="deleteCard()">
+                <mat-icon>delete</mat-icon>
+                Delete
+            </button>
+        </mat-menu>
+    </mat-card-header>
+
+    <mat-card-content>
+
+        <!-- Add warm-up -->
+        <div class="center-row">
+            <button mat-raised-button color="primary" (click)="addWarmup()">
+                <mat-icon>add</mat-icon>
+                Warm-up
+            </button>
+        </div>
+
+        <!-- TABLE -->
+        <table mat-table [dataSource]="dataSource" class="exercise-table" cdkDropList
+            (cdkDropListDropped)="dropRow($event)">
+
+            <!-- Counter / icon -->
+            <ng-container matColumnDef="counter">
+                <td mat-cell *matCellDef="let row; let i = index" cdkDragHandle>
+                    <div class="swipe-container" (touchstart)="touchStart($event, row)" (touchmove)="touchMove($event)"
+                        (touchend)="touchEnd()">
+                        @if(row.warmup;){
+                        <ng-container>
+                            <mat-icon color="accent">local_fire_department</mat-icon>
+                        </ng-container>
+                        }
+                        @else {
+                        <ng-container>{{ getSetNumber(i) }}</ng-container>
+                        }
+                    </div>
+                </td>
+            </ng-container>
+
+            <!-- Weight -->
+            <ng-container matColumnDef="weight">
+                <td mat-cell *matCellDef="let row" cdkDragHandle>
+                    <div class="swipe-container" (touchstart)="touchStart($event, row)" (touchmove)="touchMove($event)"
+                        (touchend)="touchEnd()">
+                        @if(!row.editWeight) {
+                        <div class="editable" (click)="edit(row, 'weight')">
+                            {{ row.weight }} kg
+                        </div>
+                        }
+                        @if(row.editWeight) {
+
+                        <input type="number" inputmode="numeric" pattern="[0-9]*" class="edit-input"
+                            [(ngModel)]="row.weight" (blur)="stopEdit(row, 'weight')"
+                            (keydown.enter)="stopEdit(row, 'weight')" autofocus />
+                        }
+                    </div>
+                </td>
+            </ng-container>
+
+            <!-- Reps -->
+            <ng-container matColumnDef="reps">
+                <td mat-cell *matCellDef="let row" cdkDragHandle>
+                    <div class="swipe-container" (touchstart)="touchStart($event, row)" (touchmove)="touchMove($event)"
+                        (touchend)="touchEnd()">
+                        @if(!row.editReps) {
+                        <div class="editable" (click)="edit(row, 'reps')">
+                            {{ row.reps }} reps
+                        </div>
+                        }
+                        @if(row.editReps) {
+                        <input type="number" inputmode="numeric" pattern="[0-9]*" class="edit-input"
+                            [(ngModel)]="row.reps" (blur)="stopEdit(row, 'reps')"
+                            (keydown.enter)="stopEdit(row, 'reps')" autofocus />
+                        }
+                    </div>
+                </td>
+            </ng-container>
+
+            <!-- Actions -->
+            <ng-container matColumnDef="actions">
+                <td mat-cell *matCellDef="let row" cdkDragHandle>
+                    <button mat-icon-button [matMenuTriggerFor]="rowMenu" (click)="setCurrentRow(row)">
+                        <mat-icon>more_vert</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+
+            <mat-menu #rowMenu="matMenu">
+                <button mat-menu-item (click)="deleteRow(currentRow)">
+                    <mat-icon>delete</mat-icon>
+                    Delete
+                </button>
+            </mat-menu>
+
+            <tr mat-row *matRowDef="let row; columns: displayedColumns" cdkDrag (cdkDragStarted)="onDragStart()">
+            </tr>
+        </table>
+
+        <!-- Add Set -->
+        <div class="center-row">
+            <button mat-raised-button color="primary" (click)="addSet()">
+                <mat-icon>add</mat-icon>
+                Set
+            </button>
+        </div>
+
+    </mat-card-content>
+</mat-card>

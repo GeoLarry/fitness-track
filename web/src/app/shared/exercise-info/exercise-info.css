@@ -1,0 +1,63 @@
+.info-header {
+    text-align: center;
+}
+
+.dialog-content {
+    height: 100vh;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px 16px 0 0;
+}
+
+.mat-mdc-dialog-surface {
+    backdrop-filter: blur(8px);
+    background: rgba(114, 214, 55, 0.4) !important;
+}
+
+.mat-mdc-card {
+    margin: 16px;
+}
+
+.mat-mdc-card-header {
+    justify-content: center;
+    padding: 0;
+}
+
+/* muscle cards */
+
+.muscles-container {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+/* Each box gets equal width */
+.muscle-box {
+    flex: 1;
+    min-width: 0;
+    /* important for flex overflow */
+    padding: 12px;
+    border-radius: 12px;
+    background: transparent;
+}
+
+/* Titles */
+.muscle-box h3 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Items */
+.muscle-item {
+    font-size: 13px;
+    padding: 4px 0;
+}
+
+/* 📱 Mobile: stack vertically */
+/* @media (max-width: 600px) {
+    .muscles-container {
+        flex-direction: column;
+    }
+} */
