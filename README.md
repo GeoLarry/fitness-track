@@ -7,14 +7,14 @@ A full-stack workout tracker: build a workout from an exercise catalog, log warm
 
 ## Current state
 
-The repository brings two working halves together. Connecting them is the first part of the roadmap.
+The Angular app in `web/` is moving from Firebase to the .NET API in `api/` (built from my `dotnet-auth-starter` template).
 
-- `web/` is the Angular app as it stands today. It still uses **Firebase** (Auth and Firestore) for sign-in and the exercise catalog.
-- `api/` is the .NET backend from my `dotnet-auth-starter` template. It is not used by the app yet.
+- Sign-in already goes through the API.
+- The exercise catalog is served by the API, but the app still reads it from **Firestore** until the next step of the roadmap.
 
 What the app does today:
 
-- Sign up and log in (Firebase Auth), with roles `admin`, `coach` and `user`
+- Sign up with a username, log in with email or username, stay signed in across reloads; roles User, Coach and Administrator
 - Workout page with tabs: Planned, New and Completed (Planned and Completed are placeholders)
 - Current workout: a timer, one card per exercise with warm-ups and sets (weight, reps, drag to reorder)
 - Exercise picker with search, exercise info, and custom exercises (muscles, equipment, instructions)
@@ -55,18 +55,22 @@ npm install
 npm start
 ```
 
-App on http://localhost:4200. Until the auth step of the roadmap, sign-in goes through the Firebase project `fitness-tracker-83406`.
+App on http://localhost:4200. The app calls the API on its own origin (`/api`); the dev server proxies those requests to http://localhost:5080 (`web/proxy.conf.json`). Until the catalog step of the roadmap, the exercise list still comes from the Firebase project `fitness-tracker-83406`.
+
+The API has no migrations yet: after pulling changes to its data model, delete `api/src/Starter.Api/app.db` once so it is recreated.
 
 ## Roadmap
 
 - [x] Monorepo: API from `dotnet-auth-starter`, the Angular app in `web/`, CI per folder
 - [ ] Upgrade the web app: Angular 22, drop the unused SSR server, Vitest instead of Karma, ESLint, remove dead code
-- [ ] Sign-in through the API: JWT auth service, interceptor and guards in the web app (the existing screens stay), Coach role in the API
-- [ ] Exercise catalog on the API: exercises, muscles, equipment, seeded from `docs/AppData.xlsx`; then remove Firebase
+- [x] Sign-in through the API: JWT auth service, interceptor and guards in the web app (the existing screens stay), Coach role in the API
+- [x] Exercise catalog on the API: exercises, muscles, equipment, seeded from `docs/AppData.xlsx`
+- [ ] The web app reads the catalog from the API; remove Firebase
 - [ ] Save a workout: exercises, warm-ups and sets with weight and reps, duration from the timer
 - [ ] Completed workouts: history per user
 - [ ] Planned workouts: templates, start a workout from a plan
 - [ ] Coaches: assign athletes, plan their workouts, see their history
+- [ ] Profile: first and last name, birthdate (asked at sign-up before the move to the API)
 - [ ] Email confirmation, rate limiting on the auth endpoints, dates read back as UTC
 - [ ] Progress: charts per exercise, personal records
 - [ ] Mobile polish / PWA, live demo

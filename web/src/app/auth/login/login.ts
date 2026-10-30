@@ -1,46 +1,45 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, NgForm } from '@angular/forms';
-
-import { AuthService } from '../auth.service';
-import { UIService } from '../shared/ui';
-import { Subscription } from 'rxjs';
+import { AuthService } from '../../shared/services/auth.service';
+import { apiErrorMessage, safeReturnUrl } from '../../shared/http/api-error';
 
 @Component({
   selector: 'app-login',
-  imports: [MatFormFieldModule, MatInputModule, MatCheckboxModule, MatButtonModule, MatProgressSpinnerModule, FormsModule],
+  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, MatProgressSpinnerModule, FormsModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Login implements OnInit, OnDestroy {
+export class Login {
   private authService = inject(AuthService);
-  private uiService = inject(UIService);
-  private cd = inject(ChangeDetectorRef);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
-  loadingSubscriptions: Subscription;
-  isLoading = false;
+  readonly isLoading = signal(false);
+  readonly error = signal<string | null>(null);
 
-  ngOnInit() {
-    this.loadingSubscriptions = this.uiService.loadingStateChanged.subscribe(isLoading => {
-      this.isLoading = isLoading;
-      this.cd.detectChanges();
-    });
-  }
+  async onSubmit(form: NgForm) {
+    if (form.invalid || this.isLoading()) return;
 
-  onSubmit(form: NgForm) {
-    this.authService.login({
-      email: form.value.email,
-      password: form.value.password
-    });
-  }
-
-  ngOnDestroy(): void {
-    if (this.loadingSubscriptions) {
-      this.loadingSubscriptions.unsubscribe();
+    this.isLoading.set(true);
+    this.error.set(null);
+    try {
+      await this.authService.login({ username: form.value.username.trim(), password: form.value.password });
+      const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+      await this.router.navigateByUrl(returnUrl ? safeReturnUrl(returnUrl) : '/training');
+    } catch (error) {
+      // The API answers a wrong username or password with a bare 401.
+      this.error.set(error instanceof HttpErrorResponse && error.status === 401
+        ? 'Wrong email, username or password.'
+        : apiErrorMessage(error));
+    } finally {
+      this.isLoading.set(false);
     }
   }
 }

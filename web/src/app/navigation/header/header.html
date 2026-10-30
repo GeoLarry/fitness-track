@@ -9,12 +9,12 @@
     </div>
     <div class="toolbar-links">
         <ul class="navigation-items">
-            @if(isAuth) {
+            @if(isAuth()) {
             <li>
                 <a routerLink="/">Home</a>
             </li>
             }
-            @if(!isAuth) {
+            @if(!isAuth()) {
             <li>
                 <a routerLink="/signup">Sign up</a>
             </li>
@@ -22,7 +22,7 @@
                 <a routerLink="/login">Login</a>
             </li>
             }
-            @if(isAuth) {
+            @if(isAuth()) {
             <li>
                 <a routerLink="/training">Training</a>
             </li>
