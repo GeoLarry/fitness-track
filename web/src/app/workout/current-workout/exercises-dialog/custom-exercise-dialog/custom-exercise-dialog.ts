@@ -1,28 +1,33 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { MaterialModule } from '../../../../material.module';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
-import { Exercise, Muscle, Equipment } from '../../../../training/exercise.model';
-import { TrainingService } from '../../../../training/training.service';
+import { Exercise, Muscle, Equipment } from '../../../exercise.model';
+import { TrainingService } from '../../../training.service';
 import { map, Observable } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-custom-exercise-dialog',
   standalone: true,
-  imports: [MaterialModule, FormsModule, AsyncPipe],
+  imports: [MatExpansionModule, MatFormFieldModule, MatInputModule, MatListModule, MatSelectModule, MatButtonModule, FormsModule, AsyncPipe],
   templateUrl: './custom-exercise-dialog.html',
   styleUrl: './custom-exercise-dialog.css',
 })
 export class CustomExerciseDialog {
+  private dialogRef = inject<MatDialogRef<CustomExerciseDialog>>(MatDialogRef);
+  private trainingService = inject(TrainingService);
 
   muscles$!: Observable<Muscle[]>;
   equipment$!: Observable<Equipment[]>;
 
-  //private subscriptions: Subscription[] = [];
-
   exercise: Exercise = {
-    id: crypto.randomUUID(),   // ✔ temporary ID (Firebase will override)
+    id: crypto.randomUUID(),   // temporary id, replaced when the exercise is saved
     name: '',
     description: '',
     instructions: '',
@@ -31,32 +36,21 @@ export class CustomExerciseDialog {
     equipmentId: '',
     isCustom: false,
     images: []
-    //date: new Date()
-    //variableIds?: string[],
-    //state: null,
-    //type: null,
-    //duration?: number,
-    //calories?: number,
   };
 
-  constructor(
-    private dialogRef: MatDialogRef<CustomExerciseDialog>,
-    private trainingService: TrainingService
-  ) {
+  constructor() {
     this.muscles$ = this.trainingService.muscles$.pipe(
       map(muscles => [...muscles].sort((a, b) => a.name.localeCompare(b.name)))
     );
-    this.equipment$ = this.trainingService.equipment$;
-
-    this.trainingService.equipment$.pipe(
+    this.equipment$ = this.trainingService.equipment$.pipe(
       map(equipment => [...equipment].sort((a, b) => a.name.localeCompare(b.name)))
-    )
+    );
 
     this.trainingService.fetchMuscles();
     this.trainingService.fetchEquipment();
   }
 
-  onEnter(event: any) {
+  onEnter(event: Event) {
     event.preventDefault();
 
     const textarea = event.target as HTMLTextAreaElement;
@@ -80,14 +74,11 @@ export class CustomExerciseDialog {
 
   toggle(list: string[], id: string) {
     const i = list.indexOf(id);
-    i === -1 ? list.push(id) : list.splice(i, 1);
+    if (i === -1) list.push(id);
+    else list.splice(i, 1);
   }
 
   async save() {
-    console.log('custom exercise: ', this.exercise)
-    // if (!this.exercise.name || this.isSaving) return;
-
-    // this.isSaving = true;
     await this.trainingService.addExercise(this.exercise);
     this.dialogRef.close(this.exercise);
   }

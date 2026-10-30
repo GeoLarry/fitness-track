@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 
@@ -6,10 +6,7 @@ import { Subject } from 'rxjs';
   providedIn: 'root',
 })
 export class UIService {
-
-  constructor(
-    private snackbar: MatSnackBar
-  ) { }
+  private snackbar = inject(MatSnackBar);
 
   loadingStateChanged = new Subject<boolean>();
 

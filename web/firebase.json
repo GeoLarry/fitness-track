@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist/test/browser",
+    "public": "dist/fitness-track/browser",
     "ignore": [
       "firebase.json",
       "**/.*",

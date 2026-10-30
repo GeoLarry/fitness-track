@@ -1,22 +1,21 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { MaterialModule } from './material.module';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { Header } from "./navigation/header/header";
 import { SidenavList } from "./navigation/sidenav-list/sidenav-list";
 import { AuthService } from './auth/auth.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MaterialModule, Header, SidenavList],
+  imports: [RouterOutlet, MatSidenavModule, Header, SidenavList],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App implements OnInit {
-  constructor(private authService: AuthService) { }
+  private authService = inject(AuthService);
 
   ngOnInit(): void {
     this.authService.initAuthListener();
   }
-  protected readonly title = signal('test');
   openSidenav = false;
 }

@@ -1,24 +1,23 @@
-import { Component, OnInit, EventEmitter, Output, OnDestroy } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, OnDestroy, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { RouterOutlet, RouterLinkWithHref } from '@angular/router';
-import { MaterialModule } from '../../material.module';
+import { RouterLinkWithHref } from '@angular/router';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-header',
-  imports: [MaterialModule, RouterLinkWithHref],
+  imports: [MatToolbarModule, MatIconModule, MatButtonModule, RouterLinkWithHref],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
 export class Header implements OnInit, OnDestroy {
+  private authService = inject(AuthService);
 
   @Output() sidenavToggle = new EventEmitter<void>();
   authSubscription = new Subscription();
-  isAuth: boolean = false;
-
-  constructor(
-    private authService: AuthService
-  ) { }
+  isAuth = false;
 
   ngOnInit() {
     this.authSubscription = this.authService.authChange.subscribe(authStatus => {

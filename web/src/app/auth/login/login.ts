@@ -1,5 +1,9 @@
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
-import { MaterialModule } from '../../material.module';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, NgForm } from '@angular/forms';
 
 import { AuthService } from '../auth.service';
@@ -8,20 +12,17 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
-  imports: [MaterialModule, FormsModule],
+  imports: [MatFormFieldModule, MatInputModule, MatCheckboxModule, MatButtonModule, MatProgressSpinnerModule, FormsModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
 export class Login implements OnInit, OnDestroy {
+  private authService = inject(AuthService);
+  private uiService = inject(UIService);
+  private cd = inject(ChangeDetectorRef);
 
   loadingSubscriptions: Subscription;
-  isLoading: boolean = false;
-
-  constructor(
-    private authService: AuthService,
-    private uiService: UIService,
-    private cd: ChangeDetectorRef,
-  ) { }
+  isLoading = false;
 
   ngOnInit() {
     this.loadingSubscriptions = this.uiService.loadingStateChanged.subscribe(isLoading => {

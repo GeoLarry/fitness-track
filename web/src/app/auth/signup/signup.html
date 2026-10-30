@@ -16,7 +16,7 @@
                 <mat-error>Email must not be empty.</mat-error>
             }
             @if(!emailInput.hasError('required')) {
-                <mat-error >Email is ivalid.</mat-error>
+                <mat-error >Email is invalid.</mat-error>
             }
         </mat-form-field>
         <!-- Password -->
@@ -40,7 +40,7 @@
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
-        <!-- Terms of agriement -->
+        <!-- Terms of agreement -->
             <mat-checkbox ngModel name="agree" required>Agree to terms and conditions.</mat-checkbox>
         <button type="submit" mat-raised-button color="primary" [disabled]="SignUpForm.invalid">Submit</button>
     </form>

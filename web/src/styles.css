@@ -31,10 +31,6 @@ mat-sidenav {
     border-radius: 0;
 }
 
-.exercise-info-dialog .mat-dialog-container {
-    padding: 0;
-    border-radius: 0;
-}
 
 .mat-mdc-dialog-surface,
 .mat-mdc-dialog-container {
@@ -42,12 +38,6 @@ mat-sidenav {
     background: transparent !important;
     backdrop-filter: blur(8px) !important;
 }
-
-/* .exercise-info-dialog .mat-mdc-dialog-container,
-.exercise-info-dialog .mdc-dialog__surface {
-    background: transparent;
-    backdrop-filter: blur(8px);
-} */
 
 /* Fixed footer button */
 .fixed-footer-button {

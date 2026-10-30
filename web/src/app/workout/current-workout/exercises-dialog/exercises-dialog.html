@@ -27,7 +27,7 @@
         @for(exercise of (filteredExercises$ | async) ?? []; track exercise.id) {
         <mat-list-item class="exercise-item">
             <div class="exercise-row">
-                <div class="exercise-choice" (click)="selectExercise(exercise)">
+                <div class="exercise-choice" role="button" tabindex="0" (click)="selectExercise(exercise)" (keydown.enter)="selectExercise(exercise)">
                     <span class="exercise-name">{{ exercise.name }}</span>
                 </div>
                 <div>

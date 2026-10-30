@@ -1,19 +1,24 @@
-import { Component, inject, Inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Exercise, Muscle } from '../../training/exercise.model';
+import { Exercise, Muscle } from '../../workout/exercise.model';
 import { Observable, map } from 'rxjs';
-import { TrainingService } from '../../training/training.service';
+import { TrainingService } from '../../workout/training.service';
 import { AsyncPipe } from '@angular/common';
-import { MaterialModule } from '../../material.module';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   standalone: true,
   selector: 'app-exercise-info-dialog',
   templateUrl: './exercise-info.html',
   styleUrls: ['./exercise-info.css'],
-  imports: [MaterialModule, AsyncPipe]
+  imports: [MatCardModule, MatButtonModule, AsyncPipe]
 })
-export class ExerciseInfoDialog {
+export class ExerciseInfoDialog implements OnInit {
+  private trainingService = inject(TrainingService);
+  private dialogRef = inject<MatDialogRef<ExerciseInfoDialog>>(MatDialogRef);
+  data = inject<Exercise>(MAT_DIALOG_DATA);
+
 
   currentImage = 0;
   instructionsList: string[] = [];
@@ -22,12 +27,6 @@ export class ExerciseInfoDialog {
   primaryMuscles$!: Observable<Muscle[]>;
   secondaryMuscles$!: Observable<Muscle[]>;
   loading$!: Observable<boolean>;
-
-  constructor(
-    private trainingService: TrainingService,
-    private dialogRef: MatDialogRef<ExerciseInfoDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: Exercise
-  ) { }
 
   ngOnInit() {
     /* Loading State */

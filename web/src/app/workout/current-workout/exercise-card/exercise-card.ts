@@ -1,9 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { MaterialModule } from '../../../material.module';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTableModule } from '@angular/material/table';
 import { FormsModule } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
-//import { DragDropModule } from '@angular/cdk/drag-drop';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { Exercise } from '../../exercise.model';
+import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 
 export interface ExerciseRow {
   warmup: boolean;
@@ -15,13 +19,13 @@ export interface ExerciseRow {
 
 @Component({
   selector: 'app-exercise-card',
-  imports: [MaterialModule, FormsModule],
+  imports: [MatCardModule, MatIconModule, MatButtonModule, MatMenuModule, MatTableModule, CdkDropList, CdkDrag, CdkDragHandle, FormsModule],
   templateUrl: './exercise-card.html',
   styleUrl: './exercise-card.css',
 })
 export class ExerciseCard {
 
-  @Input() exercise: any;     // incoming exercise data
+  @Input() exercise!: Exercise;
   @Output() remove = new EventEmitter<void>();
 
   displayedColumns = ['counter', 'weight', 'reps', 'actions'];
@@ -29,8 +33,6 @@ export class ExerciseCard {
   rows: ExerciseRow[] = [{ warmup: false, weight: 0, reps: 0 }];
   currentRow: ExerciseRow | null = null;
   dataSource = new MatTableDataSource(this.rows);
-
-  constructor() { }
 
   /** ------- Add Warm-up (always placed above sets) ------- */
   addWarmup() {
@@ -85,30 +87,8 @@ export class ExerciseCard {
     return this.rows.filter(r => !r.warmup).indexOf(this.rows[i]) + 1;
   }
 
-  // ---- SWIPE HANDLING ----
-  private touchX = 0;
-  swipedRow: ExerciseRow | null = null;
-
-  touchStart(event: TouchEvent, row: ExerciseRow) {
-    // this.touchX = event.touches[0].clientX;
-    // this.swipedRow = row;
-  }
-
-  touchMove(event: TouchEvent) {
-    // const deltaX = event.touches[0].clientX - this.touchX;
-
-    // if (Math.abs(deltaX) > 100 && this.swipedRow) {
-    //   this.deleteRow(this.swipedRow);
-    //   this.swipedRow = null;
-    // }
-  }
-
-  touchEnd() {
-    this.swipedRow = null;
-  }
-
   // ---- DRAG DROP SORTING ----
-  dropRow(event: any) {
+  dropRow(event: CdkDragDrop<ExerciseRow[]>) {
     moveItemInArray(this.rows, event.previousIndex, event.currentIndex);
 
     // Ensure warmups ALWAYS stay above sets

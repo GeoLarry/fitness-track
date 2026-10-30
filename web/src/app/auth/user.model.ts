@@ -5,7 +5,7 @@ export interface User {
    userId: string;
    role: Role;
    active: true;
-   createdAt: any;
+   createdAt: unknown;
    displayName?: string;
    coachId?: string;
 }
