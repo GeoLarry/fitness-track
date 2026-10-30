@@ -1,5 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { MaterialModule } from '../../material.module';
+import { Component, inject } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 import { NgForm, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -10,23 +13,20 @@ export interface newWorkoutOptions {
 
 @Component({
   selector: 'app-new-workout',
-  imports: [MaterialModule, FormsModule],
+  imports: [MatCardModule, MatFormFieldModule, MatSelectModule, MatButtonModule, FormsModule],
   templateUrl: './new-workout.html',
   styleUrl: './new-workout.css',
 })
-export class NewWorkout implements OnInit {
+export class NewWorkout {
+  private route = inject(Router);
+
   workoutOptions: newWorkoutOptions[] = [
     { id: 'start-workout', message: 'Start now a workout' },
     { id: 'plan-workout', message: 'Plan a workout' },
   ]
-  constructor(private route: Router) { }
-
-  ngOnInit() {
-
-  }
 
   onStartWorkout(form: NgForm) {
-    let workoutOption = form.value.workout;
+    const workoutOption = form.value.workout;
     if(workoutOption === 'start-workout') {
       this.route.navigate(['/current-workout'], {queryParams: { mode: 'start-workout' }});
     } else {

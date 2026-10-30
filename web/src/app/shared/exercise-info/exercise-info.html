@@ -7,7 +7,7 @@
 
     <!-- IMAGE / MUSCLE MAP -->
     @if (data.images?.length) {
-    <div class="image-container" (click)="nextImage()">
+    <div class="image-container" role="button" tabindex="0" aria-label="Next image" (click)="nextImage()" (keydown.enter)="nextImage()">
         <img [src]="data.images[currentImage]" alt="exercise image" />
 
         @if (data.images.length > 1) {

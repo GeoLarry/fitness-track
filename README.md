@@ -23,9 +23,9 @@ What the app does today:
 
 | Part | Technologies |
 |---|---|
-| Frontend (`web/`) | Angular 21, standalone components, zoneless change detection, Angular Material, Firebase (to be replaced by the API) |
+| Frontend (`web/`) | Angular 21, standalone components, zoneless change detection, Angular Material, ESLint, Firebase (to be replaced by the API) |
 | Backend (`api/`) | .NET 10 Minimal API, EF Core (SQLite / SQL Server), JWT, permission-based authorization, Bogus seeding |
-| Tests | xUnit integration tests over the real HTTP pipeline |
+| Tests | Vitest unit tests for the Angular app (jsdom), xUnit integration tests over the real HTTP pipeline |
 | CI | GitHub Actions, one workflow per folder |
 
 ## Repository layout

@@ -29,6 +29,11 @@ jobs:
       - name: Install
         run: npm ci
 
-      # Lint and unit tests join once the app moves to ESLint and Vitest (see the roadmap)
+      - name: Lint
+        run: npm run lint
+
       - name: Build
         run: npm run build
+
+      - name: Test
+        run: npm test -- --watch=false

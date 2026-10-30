@@ -27,7 +27,7 @@
                 <a routerLink="/training">Training</a>
             </li>
             <li>
-                <a (click)="onLogout()">Logout</a>
+                <a href="" (click)="$event.preventDefault(); onLogout()">Logout</a>
             </li>
             }
         </ul>

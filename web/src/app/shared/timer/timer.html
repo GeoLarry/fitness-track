@@ -7,7 +7,7 @@
 
   <!-- CENTER: Time -->
   @if(!editing) {
-  <div class="time-display" (click)="enableEdit()">
+  <div class="time-display" role="button" tabindex="0" (click)="enableEdit()" (keydown.enter)="enableEdit()">
     {{ format(remaining) }}
   </div>
   }

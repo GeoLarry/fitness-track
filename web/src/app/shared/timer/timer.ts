@@ -1,23 +1,24 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
-import { MaterialModule } from '../../material.module';
+import { ChangeDetectorRef, Component, OnDestroy, inject } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-timer',
-  imports: [MaterialModule, FormsModule],
+  imports: [MatIconModule, MatButtonModule, FormsModule],
   templateUrl: './timer.html',
   styleUrl: './timer.css',
 })
 export class Timer implements OnDestroy {
+  private cd = inject(ChangeDetectorRef);
+
   initialMinutes = 0;
   initialSeconds = 30;
 
   remaining = 30; // in seconds
-  interval: any;
+  interval?: ReturnType<typeof setInterval>;
   isRunning = false;
-  editing = false; // edit mode for min/sec
-
-  constructor(private cd: ChangeDetectorRef) { }
+  editing = false;
 
   /** Format to mm:ss */
   format(sec: number): string {

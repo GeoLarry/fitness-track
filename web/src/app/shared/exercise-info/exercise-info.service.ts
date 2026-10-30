@@ -1,12 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Exercise } from '../../training/exercise.model';
+import { Exercise } from '../../workout/exercise.model';
 import { ExerciseInfoDialog } from './exercise-info';
 
 @Injectable({ providedIn: 'root' })
 export class ExerciseInfoService {
-
-  constructor(private dialog: MatDialog) {}
+  private dialog = inject(MatDialog);
 
   open(exercise: Exercise) {
     this.dialog.open(ExerciseInfoDialog, {

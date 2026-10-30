@@ -1,23 +1,32 @@
-import { Component, Inject } from '@angular/core';
-import { Exercise } from '../../../training/exercise.model';
-import { TrainingService } from '../../../training/training.service';
-import { MaterialModule } from '../../../material.module';
+import { Component, inject } from '@angular/core';
+import { Exercise } from '../../exercise.model';
+import { TrainingService } from '../../training.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatListModule } from '@angular/material/list';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDialog } from '@angular/material/dialog';
 import { CustomExerciseDialog } from './custom-exercise-dialog/custom-exercise-dialog';
-import { BehaviorSubject, combineLatest, distinctUntilChanged, map, Observable, shareReplay, startWith, take, takeUntil } from 'rxjs';
+import { BehaviorSubject, combineLatest, distinctUntilChanged, map, Observable, shareReplay, startWith } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 import { ExerciseInfoService } from '../../../shared/exercise-info/exercise-info.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DestroyRef } from '@angular/core';
 
 @Component({
   selector: 'app-exercises-dialog',
-  imports: [MaterialModule, AsyncPipe],
+  imports: [MatFormFieldModule, MatInputModule, MatIconModule, MatButtonModule, MatListModule, AsyncPipe],
   templateUrl: './exercises-dialog.html',
   styleUrl: './exercises-dialog.css',
 })
 export class ExercisesDialog {
+  private trainingService = inject(TrainingService);
+  private dialog = inject(MatDialog);
+  private destroyRef = inject(DestroyRef);
+  private dialogRef = inject<MatDialogRef<ExercisesDialog>>(MatDialogRef);
+  private exerciseInfoService = inject(ExerciseInfoService);
+  data = inject(MAT_DIALOG_DATA);
 
   exercises$!: Observable<Exercise[]>;
   loading$!: Observable<boolean>;
@@ -25,14 +34,7 @@ export class ExercisesDialog {
   private searchTerm$ = new BehaviorSubject<string>('');
   filteredExercises$!: Observable<Exercise[]>;
 
-  constructor(
-    private trainingService: TrainingService,
-    private dialog: MatDialog,
-    private destroyRef: DestroyRef,
-    private dialogRef: MatDialogRef<ExercisesDialog>,
-    private exerciseInfoService: ExerciseInfoService,
-    @Inject(MAT_DIALOG_DATA) public data: any
-  ) {
+  constructor() {
     this.exercises$ = this.trainingService.exercises$.pipe(map(
       exercises => [...exercises].sort((a, b) => a.name.localeCompare(b.name))
     ));
