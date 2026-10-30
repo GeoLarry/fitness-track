@@ -17,6 +17,11 @@
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
   </ItemGroup>
 
+  <!-- The shared exercise catalog, read by ExerciseCatalogSeeder. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Data\Seed\exercise-catalog.json" />
+  </ItemGroup>
+
   <!-- Needed for IHttpContextAccessor (CurrentUserService) in a plain class library. -->
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

@@ -55,3 +55,33 @@ Content-Type: application/json
     { "module": "Users", "action": "Edit" }
   ]
 }
+
+### 8. Exercise catalog: shared exercises plus your own custom ones
+GET {{baseUrl}}/api/exercises
+Authorization: Bearer {{token}}
+
+### 9. Muscles, equipment and exercise types the exercises refer to by id
+GET {{baseUrl}}/api/muscles
+Authorization: Bearer {{token}}
+
+###
+GET {{baseUrl}}/api/equipment
+Authorization: Bearer {{token}}
+
+###
+GET {{baseUrl}}/api/exercise-types
+Authorization: Bearer {{token}}
+
+### 10. Create a custom exercise (ids from the lists above)
+POST {{baseUrl}}/api/exercises
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Sled Push",
+  "description": "Push a weighted sled across the floor",
+  "instructions": "Lean into the handles\nDrive with the legs",
+  "typeId": 1,
+  "primaryMuscleIds": [19],
+  "secondaryMuscleIds": [10]
+}

@@ -8,13 +8,14 @@ All commands below run from this `api/` folder.
 
 | Area | Details |
 |---|---|
-| API style | Minimal API, endpoints grouped per feature (`MapAuthEndpoints`, `MapUserEndpoints`, `MapRoleEndpoints`) |
+| API style | Minimal API, endpoints grouped per feature (`MapAuthEndpoints`, `MapUserEndpoints`, `MapRoleEndpoints`, `MapExerciseEndpoints`) |
 | Auth | Register, login (username or email), `GET /api/auth/me`, JWT bearer tokens, BCrypt password hashing |
 | Authorization | Permissions as `(Module, Action)` pairs on roles, users can hold several roles, `.RequirePermission(...)` on any endpoint |
 | Live permissions | Permissions are checked against the database on every request, so role changes and deactivation apply to tokens already issued |
-| Protected roles | Super Admin (immutable, never assignable), Administrator and User (built in, cannot be deleted). `System` permissions cannot be granted through the API |
+| Protected roles | Super Admin (immutable, never assignable), Administrator, User and Coach (built in, cannot be deleted). `System` permissions cannot be granted through the API |
+| Exercise catalog | 383 shared exercises with muscles, equipment and types, seeded from `docs/AppData.xlsx`; custom exercises per user |
 | Data | EF Core 10, SQLite by default, SQL Server with one setting |
-| Seeding | Roles, the first admin and (in Development) demo users generated with Bogus |
+| Seeding | Roles, the first admin, the exercise catalog and (in Development) demo users generated with Bogus |
 | Docs | OpenAPI + Scalar UI in Development, ready-made requests in `Starter.Api.http` |
 | Tests | xUnit integration tests over the real HTTP pipeline with in-memory SQLite |
 | CI | GitHub Actions: restore, build, test on every push and pull request |
@@ -39,7 +40,8 @@ dotnet run --project src/Starter.Api
 ```
 
 - API: `http://localhost:5080`, API reference (Scalar): `http://localhost:5080/scalar/v1`
-- A SQLite file `app.db` is created on first run, with roles, the admin and 25 demo users.
+- A SQLite file `app.db` is created on first run, with roles, the admin, 25 demo users and the exercise catalog.
+- There are no migrations yet: after pulling changes to the data model, delete `src/Starter.Api/app.db` once so it is recreated.
 - Development admin: `admin` / `Admin123!` (from `appsettings.Development.json`). Demo users use `Demo123!`.
 
 Open `src/Starter.Api/Starter.Api.http` in VS Code (REST Client extension) to log in and try every endpoint.
@@ -68,6 +70,10 @@ dotnet test
 | PUT | `/api/roles/{id}` | Roles.Edit (system roles also need System.Edit) |
 | DELETE | `/api/roles/{id}` | Roles.Delete |
 | GET | `/api/permissions` | Roles.View |
+| GET | `/api/exercises` (shared catalog plus your own custom exercises) | Exercises.View |
+| GET | `/api/exercises/{id}` | Exercises.View |
+| POST | `/api/exercises` (custom exercise, visible only to you) | Exercises.Create |
+| GET | `/api/muscles`, `/api/equipment`, `/api/exercise-types` | Exercises.View |
 | GET | `/health` | public |
 
 Errors from services come back as `400 { "message": "..." }`.
@@ -112,6 +118,19 @@ dotnet ef migrations add InitialCreate --project src/Starter.Infrastructure --st
 ```
 
 From then on the app runs `Migrate()` on start. Delete any old `app.db` first, since it was created without migration history. Migrations are provider-specific: if you change provider later, generate them again for the new one.
+
+## Roles
+
+| Role | Permissions |
+|---|---|
+| Super Admin | `System.View`, `System.Edit`; never assignable |
+| Administrator | Every permission except `System` |
+| User | `Exercises.View`, `Exercises.Create`; given on sign-up |
+| Coach | Same as User for now; coaching features add to it |
+
+## Exercise catalog seed
+
+`src/Starter.Infrastructure/Data/Seed/exercise-catalog.json` is embedded in the Infrastructure assembly and seeded while the shared catalog is empty. It was built once from `docs/AppData.xlsx` (sheet "Excercises per muscle": each column is the primary muscle group of its exercises, Cardio becomes the exercise type) and the muscles and equipment in `docs/seed-data.ts`. Equipment is filled in only where the exercise name states it (Barbell, Dumbbell, Cable, Machine...). Edit the JSON to correct or extend the catalog; secondary muscles are still empty.
 
 ## Adding a feature
 

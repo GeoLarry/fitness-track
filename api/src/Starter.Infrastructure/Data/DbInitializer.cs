@@ -29,7 +29,15 @@ public static class DbInitializer
         await SeedRolesAsync(db, ct);
         await SeedAdminAsync(db, seed, logger, ct);
         await SeedDemoUsersAsync(db, seed, ct);
+        await ExerciseCatalogSeeder.SeedAsync(db, ct);
     }
+
+    // What every signed-in athlete can do: browse the exercise catalog and add their own exercises.
+    private static List<RolePermission> AthletePermissions() =>
+    [
+        new RolePermission { Module = PermissionModule.Exercises, Action = PermissionAction.View },
+        new RolePermission { Module = PermissionModule.Exercises, Action = PermissionAction.Create }
+    ];
 
     private static async Task SeedRolesAsync(AppDbContext db, CancellationToken ct)
     {
@@ -67,9 +75,16 @@ public static class DbInitializer
             new Role
             {
                 Name = SystemRoles.User,
-                Description = "Default role for new sign-ups. Add your app's permissions here.",
+                Description = "Default role for new sign-ups: logs their own workouts.",
                 IsSystemRole = true,
-                Permissions = []
+                Permissions = AthletePermissions()
+            },
+            new Role
+            {
+                Name = SystemRoles.Coach,
+                Description = "Trains other users.",
+                IsSystemRole = true,
+                Permissions = AthletePermissions()
             });
 
         await db.SaveChangesAsync(ct);
