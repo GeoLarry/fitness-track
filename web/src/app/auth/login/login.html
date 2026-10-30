@@ -1,21 +1,22 @@
 <section>
     <form #LoginForm="ngForm" (ngSubmit)="onSubmit(LoginForm)">
-        <!-- Email -->
-        <mat-form-field hintLabel="Please enter a valid email">
-            <input matInput type="email" placeholder="Your email *" ngModel name="email" email required
-                #emailInput="ngModel" />
+        <!-- Email or username -->
+        <mat-form-field hintLabel="The email or username you signed up with">
+            <input matInput type="text" placeholder="Email or username *" ngModel name="username" required
+                autocomplete="username" />
         </mat-form-field>
         <!-- Password -->
-        <mat-form-field hintLabel="Please enter your password">
-            <input matInput type="password" placeholder="Your password *" ngModel name="password" required minlength="8"
-                #pwInput="ngModel" />
+        <mat-form-field>
+            <input matInput type="password" placeholder="Your password *" ngModel name="password" required
+                autocomplete="current-password" />
         </mat-form-field>
-        <!-- Remember me -->
-        <mat-checkbox ngModel name="remember">Remember me</mat-checkbox>
-        <button type="submit" mat-raised-button color="primary" [disabled]="LoginForm.invalid">
-            @if(isLoading){
-            <mat-spinner></mat-spinner>
-            } @else{
+        @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
+        }
+        <button type="submit" mat-raised-button color="primary" [disabled]="LoginForm.invalid || isLoading()">
+            @if (isLoading()) {
+            <mat-spinner diameter="20"></mat-spinner>
+            } @else {
             <span>Submit</span>
             }
         </button>

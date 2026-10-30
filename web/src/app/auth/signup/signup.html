@@ -1,47 +1,38 @@
 <section>
     <form #SignUpForm="ngForm" (ngSubmit)="onSubmit(SignUpForm)">
+        <!-- Username -->
+        <mat-form-field hintLabel="3-50 letters, digits, dot, dash or underscore">
+            <input matInput type="text" placeholder="Username *" ngModel name="username" required
+                pattern="[a-zA-Z0-9._\-]{3,50}" autocomplete="username" #usernameInput="ngModel" />
+            @if (usernameInput.hasError('required')) {
+            <mat-error>Username must not be empty.</mat-error>
+            } @else {
+            <mat-error>3-50 letters, digits, dot, dash or underscore.</mat-error>
+            }
+        </mat-form-field>
         <!-- Email -->
         <mat-form-field>
-            <input 
-            matInput 
-            type="email" 
-            placeholder="Your email *" 
-            ngModel 
-            name="email" 
-            email
-            required
-            #emailInput="ngModel"
-            />
-            @if(emailInput.hasError('required')) {
-                <mat-error>Email must not be empty.</mat-error>
-            }
-            @if(!emailInput.hasError('required')) {
-                <mat-error >Email is invalid.</mat-error>
+            <input matInput type="email" placeholder="Your email *" ngModel name="email" email required
+                autocomplete="email" #emailInput="ngModel" />
+            @if (emailInput.hasError('required')) {
+            <mat-error>Email must not be empty.</mat-error>
+            } @else {
+            <mat-error>Email is invalid.</mat-error>
             }
         </mat-form-field>
         <!-- Password -->
-        <mat-form-field hintLabel="*Should be at least 8 characters long">
-            <input 
-            matInput 
-            type="password" 
-            placeholder="Type a password *" 
-            ngModel 
-            name="password" 
-            required
-            minlength="8"
-            #pwInput="ngModel"
-            />
-            <mat-hint align="end"> {{ pwInput.value?.length }} / 8</mat-hint>
-            <mat-error>Should be at least 8 characters long</mat-error>
-        </mat-form-field>
-        <!-- Birthdate -->
-        <mat-form-field>
-            <input matInput placeholder="Your birthdate" [matDatepicker]="picker" (click)="picker.open()" ngModel name="birthdate" required readonly />
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
+        <mat-form-field hintLabel="At least 8 characters, with a letter and a digit">
+            <input matInput type="password" placeholder="Type a password *" ngModel name="password" required
+                minlength="8" maxlength="128" pattern="(?=.*[A-Za-z])(?=.*\d).*" autocomplete="new-password"
+                #pwInput="ngModel" />
+            <mat-hint align="end">{{ pwInput.value?.length ?? 0 }} / 8</mat-hint>
+            <mat-error>At least 8 characters, with a letter and a digit.</mat-error>
         </mat-form-field>
         <!-- Terms of agreement -->
-            <mat-checkbox ngModel name="agree" required>Agree to terms and conditions.</mat-checkbox>
-        <button type="submit" mat-raised-button color="primary" [disabled]="SignUpForm.invalid">Submit</button>
+        <mat-checkbox ngModel name="agree" required>Agree to terms and conditions.</mat-checkbox>
+        @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
+        }
+        <button type="submit" mat-raised-button color="primary" [disabled]="SignUpForm.invalid || isLoading()">Submit</button>
     </form>
 </section>

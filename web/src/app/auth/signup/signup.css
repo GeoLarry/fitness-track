@@ -10,4 +10,7 @@ mat-form-field {
 }
 input {
     flex: 1;
+}.error {
+    color: var(--mat-sys-error, #b3261e);
+    margin: 0;
 }

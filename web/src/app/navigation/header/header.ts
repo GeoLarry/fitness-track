@@ -1,29 +1,23 @@
-import { Component, OnInit, EventEmitter, Output, OnDestroy, inject } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { RouterLinkWithHref } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { AuthService } from '../../auth/auth.service';
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
   selector: 'app-header',
-  imports: [MatToolbarModule, MatIconModule, MatButtonModule, RouterLinkWithHref],
+  imports: [MatToolbarModule, MatIconModule, MatButtonModule, RouterLink],
   templateUrl: './header.html',
   styleUrl: './header.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Header implements OnInit, OnDestroy {
+export class Header {
   private authService = inject(AuthService);
+  private router = inject(Router);
 
-  @Output() sidenavToggle = new EventEmitter<void>();
-  authSubscription = new Subscription();
-  isAuth = false;
-
-  ngOnInit() {
-    this.authSubscription = this.authService.authChange.subscribe(authStatus => {
-      this.isAuth = authStatus;
-    });
-  }
+  readonly sidenavToggle = output<void>();
+  readonly isAuth = this.authService.isAuthenticated;
 
   onToggleSidenav() {
     this.sidenavToggle.emit();
@@ -31,11 +25,6 @@ export class Header implements OnInit, OnDestroy {
 
   onLogout() {
     this.authService.logout();
-  }
-
-  ngOnDestroy(): void {
-    if (this.authSubscription) {
-      this.authSubscription.unsubscribe();
-    }
+    this.router.navigate(['/login']);
   }
 }
