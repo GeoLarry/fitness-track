@@ -43,6 +43,22 @@ public interface IRoleService
     Task<RoleDeleteResult> DeleteRoleAsync(int id, CancellationToken ct = default);
 }
 
+public interface IExerciseCatalogService
+{
+    // The shared catalog plus the user's own custom exercises, by name.
+    Task<IReadOnlyList<ExerciseResponse>> GetExercisesAsync(int userId, CancellationToken ct = default);
+
+    // null if it does not exist or is another user's custom exercise.
+    Task<ExerciseResponse?> GetExerciseAsync(int id, int userId, CancellationToken ct = default);
+
+    // Throws ValidationFailedException on invalid input, unknown ids or a name the user already sees.
+    Task<ExerciseResponse> CreateExerciseAsync(int userId, CreateExerciseRequest request, CancellationToken ct = default);
+
+    Task<IReadOnlyList<CatalogItemResponse>> GetMusclesAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<CatalogItemResponse>> GetEquipmentAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<CatalogItemResponse>> GetExerciseTypesAsync(CancellationToken ct = default);
+}
+
 public interface IPermissionService
 {
     // Union of the permissions of all the user's roles, read from the database on every call,

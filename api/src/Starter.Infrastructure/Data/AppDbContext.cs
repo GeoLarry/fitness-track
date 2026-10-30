@@ -9,6 +9,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+    public DbSet<Exercise> Exercises => Set<Exercise>();
+    public DbSet<ExerciseMuscle> ExerciseMuscles => Set<ExerciseMuscle>();
+    public DbSet<Muscle> Muscles => Set<Muscle>();
+    public DbSet<Equipment> Equipment => Set<Equipment>();
+    public DbSet<ExerciseType> ExerciseTypes => Set<ExerciseType>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -62,6 +67,50 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             // and enum members can be reordered without a data migration.
             permission.Property(p => p.Module).HasConversion<string>().HasMaxLength(50);
             permission.Property(p => p.Action).HasConversion<string>().HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<Exercise>(exercise =>
+        {
+            exercise.Property(e => e.Name).HasMaxLength(100);
+            exercise.Property(e => e.NormalizedName).HasMaxLength(100);
+            exercise.Property(e => e.Description).HasMaxLength(1000);
+            exercise.Property(e => e.Instructions).HasMaxLength(4000);
+
+            // One name per owner: the shared catalog (null owner) and each user's custom exercises.
+            // The service also stops a custom exercise from repeating a shared one.
+            exercise.HasIndex(e => new { e.CreatedByUserId, e.NormalizedName }).IsUnique();
+
+            exercise.HasOne(e => e.ExerciseType).WithMany().HasForeignKey(e => e.ExerciseTypeId).OnDelete(DeleteBehavior.Restrict);
+            exercise.HasOne(e => e.Equipment).WithMany().HasForeignKey(e => e.EquipmentId).OnDelete(DeleteBehavior.Restrict);
+
+            // A user's custom exercises go with the user.
+            exercise.HasOne(e => e.CreatedByUser).WithMany().HasForeignKey(e => e.CreatedByUserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ExerciseMuscle>(exerciseMuscle =>
+        {
+            exerciseMuscle.HasKey(em => new { em.ExerciseId, em.MuscleId });
+
+            exerciseMuscle.HasOne<Exercise>().WithMany(e => e.Muscles).HasForeignKey(em => em.ExerciseId).OnDelete(DeleteBehavior.Cascade);
+            exerciseMuscle.HasOne(em => em.Muscle).WithMany().HasForeignKey(em => em.MuscleId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Muscle>(muscle =>
+        {
+            muscle.Property(m => m.Name).HasMaxLength(100);
+            muscle.HasIndex(m => m.Name).IsUnique();
+        });
+
+        modelBuilder.Entity<Equipment>(equipment =>
+        {
+            equipment.Property(e => e.Name).HasMaxLength(100);
+            equipment.HasIndex(e => e.Name).IsUnique();
+        });
+
+        modelBuilder.Entity<ExerciseType>(type =>
+        {
+            type.Property(t => t.Name).HasMaxLength(100);
+            type.HasIndex(t => t.Name).IsUnique();
         });
     }
 }

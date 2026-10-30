@@ -8,6 +8,9 @@ public enum PermissionModule
     Users,
     Roles,
 
+    // The exercise catalog and custom exercises.
+    Exercises,
+
     // System-level settings, reserved for the Super Admin role.
     System
 }
