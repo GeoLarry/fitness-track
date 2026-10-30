@@ -1,0 +1,34 @@
+name: API
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'api/**', '.github/workflows/api.yml' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'api/**', '.github/workflows/api.yml' ]
+
+defaults:
+  run:
+    working-directory: api
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore Starter.slnx
+
+      - name: Build
+        run: dotnet build Starter.slnx --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test Starter.slnx --configuration Release --no-build --verbosity normal
