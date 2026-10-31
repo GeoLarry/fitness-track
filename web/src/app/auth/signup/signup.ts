@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -13,7 +13,6 @@ import { apiErrorMessage } from '../../shared/http/api-error';
   imports: [MatFormFieldModule, MatInputModule, MatCheckboxModule, MatButtonModule, FormsModule],
   templateUrl: './signup.html',
   styleUrl: './signup.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Signup {
   private authService = inject(AuthService);

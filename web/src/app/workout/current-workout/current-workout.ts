@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal, inject } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { ExerciseCard } from './exercise-card/exercise-card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,7 +18,6 @@ interface WorkoutCard {
   imports: [MatButtonModule, MatIconModule, Timer, ExerciseCard],
   templateUrl: './current-workout.html',
   styleUrl: './current-workout.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CurrentWorkout {
   private dialog = inject(MatDialog);

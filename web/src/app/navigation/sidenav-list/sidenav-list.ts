@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,7 +10,6 @@ import { AuthService } from '../../shared/services/auth.service';
   imports: [MatListModule, MatIconModule, MatButtonModule, RouterLink],
   templateUrl: './sidenav-list.html',
   styleUrl: './sidenav-list.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidenavList {
   private authService = inject(AuthService);

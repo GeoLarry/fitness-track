@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,7 +10,6 @@ import { AuthService } from '../../shared/services/auth.service';
   imports: [MatToolbarModule, MatIconModule, MatButtonModule, RouterLink],
   templateUrl: './header.html',
   styleUrl: './header.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Header {
   private authService = inject(AuthService);

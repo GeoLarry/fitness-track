@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,7 +17,6 @@ import { apiErrorMessage } from '../../../../shared/http/api-error';
   imports: [MatExpansionModule, MatFormFieldModule, MatInputModule, MatListModule, MatSelectModule, MatButtonModule, FormsModule],
   templateUrl: './custom-exercise-dialog.html',
   styleUrl: './custom-exercise-dialog.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomExerciseDialog {
   private dialogRef = inject<MatDialogRef<CustomExerciseDialog, Exercise>>(MatDialogRef);

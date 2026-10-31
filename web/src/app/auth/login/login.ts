@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,7 +14,6 @@ import { apiErrorMessage, safeReturnUrl } from '../../shared/http/api-error';
   imports: [MatFormFieldModule, MatInputModule, MatButtonModule, MatProgressSpinnerModule, FormsModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Login {
   private authService = inject(AuthService);
