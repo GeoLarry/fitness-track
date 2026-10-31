@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Exercise } from '../../workout/exercise.model';
+import { Exercise } from '../../models/exercise.model';
 import { ExerciseInfoDialog } from './exercise-info';
 
 @Injectable({ providedIn: 'root' })

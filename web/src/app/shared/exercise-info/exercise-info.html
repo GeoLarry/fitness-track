@@ -3,49 +3,39 @@
     <!-- HEADER -->
     <div class="info-header">
         <h2>{{ data.name }}</h2>
-    </div>
-
-    <!-- IMAGE / MUSCLE MAP -->
-    @if (data.images?.length) {
-    <div class="image-container" role="button" tabindex="0" aria-label="Next image" (click)="nextImage()" (keydown.enter)="nextImage()">
-        <img [src]="data.images[currentImage]" alt="exercise image" />
-
-        @if (data.images.length > 1) {
-        <div class="image-dots">
-            @for (img of data.images; let i = $index; track i) {
-            <span class="dot" [class.active]="i === currentImage"></span>
-            }
-        </div>
+        @if (equipment()) {
+        <p>{{ equipment() }}</p>
+        }
+        @if (data.description) {
+        <p>{{ data.description }}</p>
         }
     </div>
-    }
 
     <!-- MUSCLES WORKED -->
-    @if ((primaryMuscles$ | async)?.length || (secondaryMuscles$ | async)?.length) {
+    @if (primaryMuscles().length || secondaryMuscles().length) {
     <mat-card>
         <mat-card-header>
             <h2>Muscles worked</h2>
         </mat-card-header>
         <mat-card-content>
-            <!-- PRIMARY -->
             <div class="muscles-container">
 
-                @if ((primaryMuscles$ | async)?.length) {
+                @if (primaryMuscles().length) {
                 <div class="muscle-box primary">
                     <h3>Primary muscles</h3>
 
-                    @for (m of (primaryMuscles$ | async)!; track m.id) {
-                    <div class="muscle-item">{{ m.name }}</div>
+                    @for (name of primaryMuscles(); track name) {
+                    <div class="muscle-item">{{ name }}</div>
                     }
                 </div>
                 }
 
-                @if ((secondaryMuscles$ | async)?.length) {
+                @if (secondaryMuscles().length) {
                 <div class="muscle-box secondary">
                     <h3>Secondary muscles</h3>
 
-                    @for (m of (secondaryMuscles$ | async)!; track m.id) {
-                    <div class="muscle-item">{{ m.name }}</div>
+                    @for (name of secondaryMuscles(); track name) {
+                    <div class="muscle-item">{{ name }}</div>
                     }
                 </div>
                 }
@@ -55,14 +45,14 @@
     </mat-card>
     }
     <!-- INSTRUCTIONS -->
-    @if (instructionsList.length) {
+    @if (instructions.length) {
     <mat-card>
         <mat-card-header>
             <h2>Instructions</h2>
         </mat-card-header>
         <mat-card-content>
             <ol>
-                @for (step of instructionsList; track $index) {
+                @for (step of instructions; track $index) {
                 <li>{{ step }}</li><br />
                 }
             </ol>

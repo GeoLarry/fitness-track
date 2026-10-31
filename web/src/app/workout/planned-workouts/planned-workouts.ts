@@ -1,11 +1,9 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'app-planned-workouts',
-  imports: [],
   templateUrl: './planned-workouts.html',
   styleUrl: './planned-workouts.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PlannedWorkouts {
-
-}
+export class PlannedWorkouts {}

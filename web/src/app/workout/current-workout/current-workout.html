@@ -1,12 +1,12 @@
 <section class="current-workout-container">
     <div class="cw-header">
         <div class="cw-controls">
-            <button mat-fab class="cw-clear-btn">
+            <button mat-fab class="cw-clear-btn" aria-label="Clear the workout" (click)="clearWorkout()">
                 <mat-icon>clear</mat-icon>
             </button>
 
             <div class="cw-controls-right">
-                <button mat-fab class="cw-done-btn">
+                <button mat-fab class="cw-done-btn" aria-label="Finish the workout">
                     <mat-icon>check</mat-icon>
                 </button>
             </div>
@@ -18,11 +18,8 @@
             </button>
         </div>
     </div>
-    @for(card of exerciseCards(); track card) {
-    <app-exercise-card [exercise]="card" (remove)="deleteCard(card)"></app-exercise-card>
+    @for (card of exerciseCards(); track card.key) {
+    <app-exercise-card [exercise]="card.exercise" (remove)="deleteCard(card.key)"></app-exercise-card>
     }
-    <div class="cw-footer">
-        <div class="cw-timer"></div>
-    </div>
     <app-timer></app-timer>
 </section>

@@ -2,33 +2,33 @@
 
     <h2 class="title">Custom Exercise</h2>
 
-    <form class="form" #CustomExerciseForm="ngForm">
+    <form class="form" #CustomExerciseForm="ngForm" (ngSubmit)="save()">
         <!-- NAME -->
         <mat-form-field appearance="outline">
             <mat-label>Exercise name</mat-label>
-            <input matInput [(ngModel)]="exercise.name" name="name" required />
+            <input matInput [ngModel]="name()" (ngModelChange)="name.set($event)" name="name" required maxlength="100" />
         </mat-form-field>
 
         <!-- DESCRIPTION -->
         <mat-form-field appearance="outline">
             <mat-label>Description</mat-label>
-            <textarea matInput rows="3" [(ngModel)]="exercise.description" name="description">
-      </textarea>
+            <textarea matInput rows="3" [ngModel]="description()" (ngModelChange)="description.set($event)" name="description" maxlength="1000"></textarea>
         </mat-form-field>
 
         <!-- INSTRUCTIONS -->
         <mat-form-field appearance="outline">
             <mat-label>Instructions</mat-label>
-            <textarea matInput rows="5" [(ngModel)]="exercise.instructions" name="instructions" (keydown.enter)="onEnter($event)">
-      </textarea>
+            <textarea matInput rows="5" [ngModel]="instructions()" (ngModelChange)="instructions.set($event)" name="instructions"
+                maxlength="4000" (keydown.enter)="onEnter($event)"></textarea>
         </mat-form-field>
 
         <!-- EQUIPMENT -->
         <mat-form-field>
             <mat-label>Equipment</mat-label>
-            <mat-select>
-                @for (equipment of (equipment$ | async) ?? []; track equipment.id) {
-                <mat-option [value]="equipment.id">{{equipment.name}}</mat-option>
+            <mat-select [ngModel]="equipmentId()" (ngModelChange)="equipmentId.set($event)" name="equipment">
+                <mat-option [value]="null">None</mat-option>
+                @for (item of equipment(); track item.id) {
+                <mat-option [value]="item.id">{{ item.name }}</mat-option>
                 }
             </mat-select>
         </mat-form-field>
@@ -41,13 +41,12 @@
                         Primary muscles
                     </mat-panel-title>
                     <mat-panel-description>
-                        {{ exercise.primaryMuscleIds.length }} selected
+                        {{ primaryMuscleIds().length }} selected
                     </mat-panel-description>
                 </mat-expansion-panel-header>
                 <mat-selection-list>
-                    @for (m of (muscles$ | async) ?? []; track m.id) {
-                    <mat-list-option [selected]="exercise.primaryMuscleIds?.includes(m.id)"
-                        (click)="toggle(exercise.primaryMuscleIds!, m.id)">
+                    @for (m of muscles(); track m.id) {
+                    <mat-list-option [selected]="primaryMuscleIds().includes(m.id)" (click)="toggleMuscle('primary', m.id)">
                         {{ m.name }}
                     </mat-list-option>
                     }
@@ -61,23 +60,27 @@
                         Secondary muscles
                     </mat-panel-title>
                     <mat-panel-description>
-                        {{ exercise.secondaryMuscleIds.length }} selected
+                        {{ secondaryMuscleIds().length }} selected
                     </mat-panel-description>
                 </mat-expansion-panel-header>
                 <mat-selection-list>
-                    @for (m of (muscles$ | async) ?? []; track m.id) {
-                    <mat-list-option [selected]="exercise.secondaryMuscleIds?.includes(m.id)"
-                        (click)="toggle(exercise.secondaryMuscleIds!, m.id)">
+                    @for (m of muscles(); track m.id) {
+                    <mat-list-option [selected]="secondaryMuscleIds().includes(m.id)" (click)="toggleMuscle('secondary', m.id)">
                         {{ m.name }}
                     </mat-list-option>
                     }
                 </mat-selection-list>
             </mat-expansion-panel>
         </mat-accordion>
+
+        @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
+        }
     </form>
 
     <div class="actions">
         <button class="ce-cancel-btn" mat-stroked-button (click)="cancel()">Cancel</button>
-        <button class="ce-save-btn" mat-stroked-button color="primary" (click)="save()" [disabled]="CustomExerciseForm.invalid">Save</button>
+        <button class="ce-save-btn" mat-stroked-button color="primary" (click)="save()"
+            [disabled]="CustomExerciseForm.invalid || isSaving()">Save</button>
     </div>
 </div>

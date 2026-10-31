@@ -1,92 +1,67 @@
-import { Component, inject } from '@angular/core';
-import { Exercise } from '../../exercise.model';
-import { TrainingService } from '../../training.service';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CustomExerciseDialog } from './custom-exercise-dialog/custom-exercise-dialog';
-import { BehaviorSubject, combineLatest, distinctUntilChanged, map, Observable, shareReplay, startWith } from 'rxjs';
-import { AsyncPipe } from '@angular/common';
 import { ExerciseInfoService } from '../../../shared/exercise-info/exercise-info.service';
-import { DestroyRef } from '@angular/core';
+import { ExerciseCatalogService } from '../../exercise-catalog.service';
+import { Exercise } from '../../../models/exercise.model';
 
+// Full-screen picker: search the catalog, pick an exercise, or create a custom one.
+// Closes with the chosen exercise, or nothing when cancelled.
 @Component({
   selector: 'app-exercises-dialog',
-  imports: [MatFormFieldModule, MatInputModule, MatIconModule, MatButtonModule, MatListModule, AsyncPipe],
+  imports: [MatFormFieldModule, MatInputModule, MatIconModule, MatButtonModule, MatListModule],
   templateUrl: './exercises-dialog.html',
   styleUrl: './exercises-dialog.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExercisesDialog {
-  private trainingService = inject(TrainingService);
+  private catalog = inject(ExerciseCatalogService);
   private dialog = inject(MatDialog);
-  private destroyRef = inject(DestroyRef);
-  private dialogRef = inject<MatDialogRef<ExercisesDialog>>(MatDialogRef);
+  private dialogRef = inject<MatDialogRef<ExercisesDialog, Exercise>>(MatDialogRef);
   private exerciseInfoService = inject(ExerciseInfoService);
-  data = inject(MAT_DIALOG_DATA);
 
-  exercises$!: Observable<Exercise[]>;
-  loading$!: Observable<boolean>;
+  readonly search = signal('');
+  readonly isLoading = this.catalog.exercises.isLoading;
+  readonly loadFailed = computed(() => this.catalog.exercises.error() !== undefined);
 
-  private searchTerm$ = new BehaviorSubject<string>('');
-  filteredExercises$!: Observable<Exercise[]>;
-
-  constructor() {
-    this.exercises$ = this.trainingService.exercises$.pipe(map(
-      exercises => [...exercises].sort((a, b) => a.name.localeCompare(b.name))
-    ));
-    this.loading$ = this.trainingService.loadingState$
-      .pipe(
-        startWith(true),
-        distinctUntilChanged(),
-        shareReplay({ bufferSize: 1, refCount: true })
-      );
-
-    // Combine search term with exercises
-    this.filteredExercises$ = combineLatest([this.exercises$, this.searchTerm$]).pipe(
-      map(([exercises, search]) =>
-        exercises
-          .filter(e => e.name.toLowerCase().includes(search.toLowerCase()))
-          .sort((a, b) => a.name.localeCompare(b.name))
-      )
-    );
-
-    this.trainingService.fetchExercises();
-  }
-
-  setSearch(value: string) {
-    this.searchTerm$.next(value);
-  }
+  readonly filteredExercises = computed(() => {
+    const term = this.search().trim().toLowerCase();
+    const exercises = this.catalog.exercises.value();
+    return term ? exercises.filter(e => e.name.toLowerCase().includes(term)) : exercises;
+  });
 
   selectExercise(exercise: Exercise) {
-    this.dialogRef.close(exercise); // 👈 return selected exercise
+    this.dialogRef.close(exercise);
   }
 
   createCustomExercise() {
-    const ref = this.dialog.open(CustomExerciseDialog, {
+    const ref = this.dialog.open<CustomExerciseDialog, undefined, Exercise>(CustomExerciseDialog, {
       width: '100vw',
       height: '100vh',
       maxWidth: '100vw',
       panelClass: 'exercise-info-dialog'
     });
 
-    ref.afterClosed().subscribe((exercise) => {
-      if (exercise) {
-        // return it to parent (CurrentWorkout)
-        this.dialogRef.close(exercise);
-      }
+    // A saved custom exercise goes straight into the workout.
+    ref.afterClosed().subscribe(exercise => {
+      if (exercise) this.dialogRef.close(exercise);
     });
+  }
+
+  retry() {
+    this.catalog.exercises.reload();
   }
 
   close() {
     this.dialogRef.close();
   }
 
-  openInfo(exercise: Exercise, event: MouseEvent) {
-    event.stopPropagation();
+  openInfo(exercise: Exercise) {
     this.exerciseInfoService.open(exercise);
   }
 }
