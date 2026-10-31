@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -16,7 +16,6 @@ export interface newWorkoutOptions {
   imports: [MatCardModule, MatFormFieldModule, MatSelectModule, MatButtonModule, FormsModule],
   templateUrl: './new-workout.html',
   styleUrl: './new-workout.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NewWorkout {
   private route = inject(Router);

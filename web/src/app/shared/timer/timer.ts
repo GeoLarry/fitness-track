@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +9,6 @@ import { FormsModule } from '@angular/forms';
   imports: [MatIconModule, MatButtonModule, FormsModule],
   templateUrl: './timer.html',
   styleUrl: './timer.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Timer {
   readonly minutes = signal(0);

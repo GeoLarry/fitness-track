@@ -19,7 +19,7 @@ The Angular app in `web/` runs entirely on the .NET API in `api/`, built from my
 
 | Part | Technologies |
 |---|---|
-| Frontend (`web/`) | Angular 21, standalone components, signals, `httpResource`, zoneless change detection, OnPush, Angular Material, ESLint |
+| Frontend (`web/`) | Angular 22, standalone components, signals, `httpResource`, zoneless change detection, OnPush, Angular Material, ESLint |
 | Backend (`api/`) | .NET 10 Minimal API, EF Core (SQLite / SQL Server), JWT, permission-based authorization, Bogus seeding |
 | Tests | Vitest unit tests for the Angular app (jsdom), xUnit integration tests over the real HTTP pipeline |
 | CI | GitHub Actions, one workflow per folder |
@@ -58,7 +58,7 @@ The API has no migrations yet: after pulling changes to its data model, delete `
 ## Roadmap
 
 - [x] Monorepo: API from `dotnet-auth-starter`, the Angular app in `web/`, CI per folder
-- [ ] Upgrade the web app: Angular 22, drop the unused SSR server, Vitest instead of Karma, ESLint, remove dead code
+- [x] Upgrade the web app: Angular 22, drop the unused SSR server, Vitest instead of Karma, ESLint, remove dead code
 - [x] Sign-in through the API: JWT auth service, interceptor and guards in the web app (the existing screens stay), Coach role in the API
 - [x] Exercise catalog on the API: exercises, muscles, equipment, seeded from `docs/AppData.xlsx`
 - [x] The web app reads the catalog from the API; Firebase removed

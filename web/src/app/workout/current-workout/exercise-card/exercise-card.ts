@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,7 +28,6 @@ const warmupsFirst = (rows: ExerciseRow[]) => [...rows.filter(r => r.warmup), ..
   imports: [MatCardModule, MatIconModule, MatButtonModule, MatMenuModule, MatTableModule, CdkDropList, CdkDrag, CdkDragHandle, FormsModule],
   templateUrl: './exercise-card.html',
   styleUrl: './exercise-card.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExerciseCard {
   readonly exercise = input.required<Exercise>();

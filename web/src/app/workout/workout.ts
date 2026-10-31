@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NewWorkout } from "./new-workout/new-workout";
 import { PlannedWorkouts } from "./planned-workouts/planned-workouts";
@@ -10,7 +10,6 @@ import { CompletedWorkouts } from "./completed-workouts/completed-workouts";
   imports: [MatTabsModule, NewWorkout, PlannedWorkouts, CompletedWorkouts],
   templateUrl: './workout.html',
   styleUrl: './workout.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Workout {
   // Opens on "New Workout".

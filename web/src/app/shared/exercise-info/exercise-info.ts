@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,7 +11,6 @@ import { Exercise } from '../../models/exercise.model';
   templateUrl: './exercise-info.html',
   styleUrls: ['./exercise-info.css'],
   imports: [MatCardModule, MatButtonModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExerciseInfoDialog {
   private catalog = inject(ExerciseCatalogService);
