@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ApplicationRef, signal } from '@angular/core';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ExerciseCatalogService } from './exercise-catalog.service';
 import { AuthService } from '../shared/services/auth.service';
@@ -30,7 +30,7 @@ describe('ExerciseCatalogService', () => {
   beforeEach(() => {
     currentUser = signal<CurrentUser | null>(user(1));
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: AuthService, useValue: { currentUser } }],
+      providers: [provideHttpClient(withXhr()), provideHttpClientTesting(), { provide: AuthService, useValue: { currentUser } }],
     });
     httpMock = TestBed.inject(HttpTestingController);
     service = TestBed.inject(ExerciseCatalogService);
