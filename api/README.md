@@ -8,14 +8,15 @@ All commands below run from this `api/` folder.
 
 | Area | Details |
 |---|---|
-| API style | Minimal API, endpoints grouped per feature (`MapAuthEndpoints`, `MapUserEndpoints`, `MapRoleEndpoints`, `MapExerciseEndpoints`) |
+| API style | Minimal API, endpoints grouped per feature (`MapAuthEndpoints`, `MapUserEndpoints`, `MapRoleEndpoints`, `MapExerciseEndpoints`, `MapWorkoutEndpoints`) |
 | Auth | Register, login (username or email), `GET /api/auth/me`, JWT bearer tokens, BCrypt password hashing |
 | Authorization | Permissions as `(Module, Action)` pairs on roles, users can hold several roles, `.RequirePermission(...)` on any endpoint |
 | Live permissions | Permissions are checked against the database on every request, so role changes and deactivation apply to tokens already issued |
 | Protected roles | Super Admin (immutable, never assignable), Administrator, User and Coach (built in, cannot be deleted). `System` permissions cannot be granted through the API |
 | Exercise catalog | 383 shared exercises with muscles, equipment and types, seeded from `docs/AppData.xlsx`; custom exercises per user |
+| Workouts | Plans, one workout in progress and the completed history per user, with exercises, warm-ups and sets |
 | Data | EF Core 10, SQLite by default, SQL Server with one setting |
-| Seeding | Roles, the first admin, the exercise catalog and (in Development) demo users generated with Bogus |
+| Seeding | Roles, the first admin, the exercise catalog and (in Development) demo users and demo workouts generated with Bogus |
 | Docs | OpenAPI + Scalar UI in Development, ready-made requests in `Starter.Api.http` |
 | Tests | xUnit integration tests over the real HTTP pipeline with in-memory SQLite |
 | CI | GitHub Actions: restore, build, test on every push and pull request |
@@ -40,7 +41,7 @@ dotnet run --project src/Starter.Api
 ```
 
 - API: `http://localhost:5080`, API reference (Scalar): `http://localhost:5080/scalar/v1`
-- A SQLite file `app.db` is created on first run, with roles, the admin, 25 demo users and the exercise catalog.
+- A SQLite file `app.db` is created on first run, with roles, the admin, 25 demo users, the exercise catalog and demo workouts: a push/pull/legs history of the last six weeks plus two plans for `admin`, `marcel52`, `modesta76`, `joaquin.hammes`, `rashad.mayert` and `raymond71`.
 - There are no migrations yet: after pulling changes to the data model, delete `src/Starter.Api/app.db` once so it is recreated.
 - Development admin: `admin` / `Admin123!` (from `appsettings.Development.json`). Demo users use `Demo123!`.
 
@@ -74,6 +75,14 @@ dotnet test
 | GET | `/api/exercises/{id}` | Exercises.View |
 | POST | `/api/exercises` (custom exercise, visible only to you) | Exercises.Create |
 | GET | `/api/muscles`, `/api/equipment`, `/api/exercise-types` | Exercises.View |
+| GET | `/api/workouts?status=Planned\|InProgress\|Completed` (your own; plans by day, history newest first) | Workouts.View |
+| GET | `/api/workouts/current` (the workout in progress, 204 if none) | Workouts.View |
+| GET | `/api/workouts/{id}` | Workouts.View |
+| POST | `/api/workouts` (status `Planned` or `InProgress`; one in progress at a time) | Workouts.Create |
+| PUT | `/api/workouts/{id}` (replaces name, notes, exercises and sets; save at any time) | Workouts.Edit |
+| POST | `/api/workouts/{id}/start` (copies a plan into a new workout in progress; the plan stays) | Workouts.Create |
+| POST | `/api/workouts/{id}/complete` (optional `durationSeconds`, otherwise from the start time) | Workouts.Edit |
+| DELETE | `/api/workouts/{id}` | Workouts.Delete |
 | GET | `/health` | public |
 
 Errors from services come back as `400 { "message": "..." }`.
@@ -125,7 +134,7 @@ From then on the app runs `Migrate()` on start. Delete any old `app.db` first, s
 |---|---|
 | Super Admin | `System.View`, `System.Edit`; never assignable |
 | Administrator | Every permission except `System` |
-| User | `Exercises.View`, `Exercises.Create`; given on sign-up |
+| User | `Exercises.View`, `Exercises.Create`, every `Workouts` action on their own workouts; given on sign-up |
 | Coach | Same as User for now; coaching features add to it |
 
 ## Exercise catalog seed

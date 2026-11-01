@@ -85,3 +85,62 @@ Content-Type: application/json
   "primaryMuscleIds": [19],
   "secondaryMuscleIds": [10]
 }
+
+### 11. Your workouts: plans, the one in progress and the history (filter with ?status=Completed)
+GET {{baseUrl}}/api/workouts
+Authorization: Bearer {{token}}
+
+### 12. Start a workout now (or "status": "Planned" for a plan)
+# @name startWorkout
+POST {{baseUrl}}/api/workouts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "InProgress",
+  "name": "Push day",
+  "exercises": [
+    {
+      "exerciseId": 40,
+      "sets": [
+        { "isWarmup": true, "weightKg": 40, "reps": 10, "isDone": true },
+        { "isWarmup": false, "weightKg": 70, "reps": 8, "isDone": false }
+      ]
+    }
+  ]
+}
+
+### The workout from the response above
+@workoutId = {{startWorkout.response.body.id}}
+
+### 13. Save it at any time: replaces the exercises and sets
+PUT {{baseUrl}}/api/workouts/{{workoutId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Push day",
+  "durationSeconds": 1500,
+  "exercises": [
+    {
+      "exerciseId": 40,
+      "notes": "Pause on the chest",
+      "sets": [
+        { "isWarmup": true, "weightKg": 40, "reps": 10, "isDone": true },
+        { "isWarmup": false, "weightKg": 70, "reps": 8, "isDone": true },
+        { "isWarmup": false, "weightKg": 72.5, "reps": 6, "isDone": true }
+      ]
+    }
+  ]
+}
+
+### 14. Complete it (duration from the timer; leave it out to use the start time)
+POST {{baseUrl}}/api/workouts/{{workoutId}}/complete
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "durationSeconds": 3000 }
+
+### 15. Start a new workout from a plan (id of a Planned workout; the plan stays)
+POST {{baseUrl}}/api/workouts/7/start
+Authorization: Bearer {{token}}

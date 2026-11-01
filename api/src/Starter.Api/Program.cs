@@ -76,6 +76,7 @@ app.MapAuthEndpoints();
 app.MapUserEndpoints();
 app.MapRoleEndpoints();
 app.MapExerciseEndpoints();
+app.MapWorkoutEndpoints();
 
 // Add your app's endpoints here, e.g. app.MapContactEndpoints();
 

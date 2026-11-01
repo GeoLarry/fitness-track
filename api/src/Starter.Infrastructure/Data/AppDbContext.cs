@@ -14,6 +14,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Muscle> Muscles => Set<Muscle>();
     public DbSet<Equipment> Equipment => Set<Equipment>();
     public DbSet<ExerciseType> ExerciseTypes => Set<ExerciseType>();
+    public DbSet<Workout> Workouts => Set<Workout>();
+    public DbSet<WorkoutExercise> WorkoutExercises => Set<WorkoutExercise>();
+    public DbSet<WorkoutSet> WorkoutSets => Set<WorkoutSet>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -111,6 +114,37 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             type.Property(t => t.Name).HasMaxLength(100);
             type.HasIndex(t => t.Name).IsUnique();
+        });
+
+        modelBuilder.Entity<Workout>(workout =>
+        {
+            workout.Property(w => w.Name).HasMaxLength(100);
+            workout.Property(w => w.Notes).HasMaxLength(1000);
+            workout.Property(w => w.Status).HasConversion<string>().HasMaxLength(20);
+
+            workout.HasIndex(w => new { w.UserId, w.Status });
+
+            // A user's workouts go with the user.
+            workout.HasOne(w => w.User).WithMany().HasForeignKey(w => w.UserId).OnDelete(DeleteBehavior.Cascade);
+
+            // Deleting a plan keeps the workouts started from it. SQL Server allows no cascade on a
+            // self-reference, so WorkoutService clears SourcePlanId before it deletes a plan.
+            workout.HasOne<Workout>().WithMany().HasForeignKey(w => w.SourcePlanId).OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<WorkoutExercise>(workoutExercise =>
+        {
+            workoutExercise.Property(we => we.Notes).HasMaxLength(1000);
+
+            workoutExercise.HasOne<Workout>().WithMany(w => w.Exercises).HasForeignKey(we => we.WorkoutId).OnDelete(DeleteBehavior.Cascade);
+            workoutExercise.HasOne(we => we.Exercise).WithMany().HasForeignKey(we => we.ExerciseId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<WorkoutSet>(set =>
+        {
+            set.Property(s => s.WeightKg).HasPrecision(6, 2);
+
+            set.HasOne<WorkoutExercise>().WithMany(we => we.Sets).HasForeignKey(s => s.WorkoutExerciseId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
