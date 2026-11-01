@@ -203,6 +203,17 @@ public class WorkoutTests(StarterApiFactory factory) : IClassFixture<StarterApiF
     }
 
     [Fact]
+    public async Task Dates_come_back_as_utc()
+    {
+        (_, HttpClient client) = await factory.RegisterUserAsync();
+        WorkoutResponse started = await CreateAsync(client, WorkoutStatus.InProgress, []);
+
+        string json = await client.GetStringAsync($"/api/workouts/{started.Id}");
+
+        Assert.Matches("\"startedAtUtc\":\"[^\"]+Z\"", json);
+    }
+
+    [Fact]
     public async Task Visitors_get_401()
     {
         HttpClient anonymous = factory.CreateClient();

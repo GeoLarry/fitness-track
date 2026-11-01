@@ -73,6 +73,33 @@ hr {
     background-color: transparent;
 }
 
+.cw-save-btn {
+    border: 0.5px solid #1e88e5;
+    color: #1e88e5;
+    background-color: transparent;
+}
+
+.cw-elapsed {
+    font-size: 22px;
+    font-variant-numeric: tabular-nums;
+}
+
+.cw-plan-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 16px 8px 0;
+}
+
+.cw-plan-fields mat-form-field {
+    flex: 1 1 180px;
+}
+
+.cw-title {
+    text-align: center;
+    margin: 12px 0 0;
+}
+
 .cw-controls-right {
     display: flex;
     gap: 8px;

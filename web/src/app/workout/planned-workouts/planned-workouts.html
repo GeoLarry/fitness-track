@@ -1,1 +1,30 @@
-<p>planned-workouts works!</p>
+<section class="workout-list">
+    @if (workouts.planned.error()) {
+    <p class="workout-list-empty">Could not load your plans.</p>
+    } @else if (workouts.planned.isLoading() && workouts.planned.value().length === 0) {
+    <p class="workout-list-empty">Loading…</p>
+    } @else {
+    @for (plan of workouts.planned.value(); track plan.id) {
+    <div class="workout-item">
+        <div class="workout-item-text">
+            <div class="workout-item-title">{{ plan.name || 'Untitled plan' }}</div>
+            <div class="workout-item-meta">
+                {{ plan.plannedForUtc ? (plan.plannedForUtc | date: 'EEE d MMM' : 'UTC') : 'Any day' }}
+                · {{ plan.exerciseCount }} exercises · {{ plan.setCount }} sets
+            </div>
+        </div>
+        <button mat-icon-button aria-label="Start this plan" (click)="start(plan.id)">
+            <mat-icon>play_arrow</mat-icon>
+        </button>
+        <button mat-icon-button aria-label="Edit this plan" (click)="edit(plan.id)">
+            <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button aria-label="Delete this plan" (click)="delete(plan.id)">
+            <mat-icon>delete</mat-icon>
+        </button>
+    </div>
+    } @empty {
+    <p class="workout-list-empty">No plans yet. Choose "Plan a workout" under New Workout.</p>
+    }
+    }
+</section>
