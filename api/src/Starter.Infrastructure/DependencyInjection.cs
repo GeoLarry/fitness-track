@@ -59,6 +59,7 @@ public static class DependencyInjection
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<IExerciseCatalogService, ExerciseCatalogService>();
+        services.AddScoped<IWorkoutService, WorkoutService>();
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 

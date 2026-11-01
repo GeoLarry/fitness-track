@@ -15,7 +15,7 @@ public class ExerciseCatalogService(AppDbContext db) : IExerciseCatalogService
 
     public async Task<IReadOnlyList<ExerciseResponse>> GetExercisesAsync(int userId, CancellationToken ct = default)
     {
-        List<Exercise> exercises = await VisibleTo(userId)
+        List<Exercise> exercises = await db.Exercises.VisibleTo(userId)
             .AsNoTracking()
             .Include(e => e.Muscles)
             .OrderBy(e => e.NormalizedName)
@@ -26,7 +26,7 @@ public class ExerciseCatalogService(AppDbContext db) : IExerciseCatalogService
 
     public async Task<ExerciseResponse?> GetExerciseAsync(int id, int userId, CancellationToken ct = default)
     {
-        Exercise? exercise = await VisibleTo(userId)
+        Exercise? exercise = await db.Exercises.VisibleTo(userId)
             .AsNoTracking()
             .Include(e => e.Muscles)
             .SingleOrDefaultAsync(e => e.Id == id, ct);
@@ -57,7 +57,7 @@ public class ExerciseCatalogService(AppDbContext db) : IExerciseCatalogService
             throw new ValidationFailedException("Unknown equipment.");
 
         string normalizedName = name.ToUpperInvariant();
-        if (await VisibleTo(userId).AnyAsync(e => e.NormalizedName == normalizedName, ct))
+        if (await db.Exercises.VisibleTo(userId).AnyAsync(e => e.NormalizedName == normalizedName, ct))
             throw new ValidationFailedException($"An exercise named '{name}' already exists.");
 
         Exercise exercise = new()
@@ -88,10 +88,6 @@ public class ExerciseCatalogService(AppDbContext db) : IExerciseCatalogService
 
     public async Task<IReadOnlyList<CatalogItemResponse>> GetExerciseTypesAsync(CancellationToken ct = default)
         => await db.ExerciseTypes.AsNoTracking().OrderBy(t => t.Name).Select(t => new CatalogItemResponse(t.Id, t.Name)).ToListAsync(ct);
-
-    // The shared catalog and the user's own custom exercises; other users' custom exercises stay private.
-    private IQueryable<Exercise> VisibleTo(int userId)
-        => db.Exercises.Where(e => e.CreatedByUserId == null || e.CreatedByUserId == userId);
 
     private static string? NullIfBlank(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 

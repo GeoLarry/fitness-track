@@ -30,13 +30,16 @@ public static class DbInitializer
         await SeedAdminAsync(db, seed, logger, ct);
         await SeedDemoUsersAsync(db, seed, ct);
         await ExerciseCatalogSeeder.SeedAsync(db, ct);
+        await WorkoutSeeder.SeedAsync(db, seed, ct);
     }
 
-    // What every signed-in athlete can do: browse the exercise catalog and add their own exercises.
+    // What every signed-in athlete can do: browse the exercise catalog, add their own exercises
+    // and keep their own workouts.
     private static List<RolePermission> AthletePermissions() =>
     [
         new RolePermission { Module = PermissionModule.Exercises, Action = PermissionAction.View },
-        new RolePermission { Module = PermissionModule.Exercises, Action = PermissionAction.Create }
+        new RolePermission { Module = PermissionModule.Exercises, Action = PermissionAction.Create },
+        .. Enum.GetValues<PermissionAction>().Select(action => new RolePermission { Module = PermissionModule.Workouts, Action = action })
     ];
 
     private static async Task SeedRolesAsync(AppDbContext db, CancellationToken ct)

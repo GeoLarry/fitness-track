@@ -11,6 +11,9 @@ public enum PermissionModule
     // The exercise catalog and custom exercises.
     Exercises,
 
+    // The signed-in user's own workouts: plans, the current one and the history.
+    Workouts,
+
     // System-level settings, reserved for the Super Admin role.
     System
 }
