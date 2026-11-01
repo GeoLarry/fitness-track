@@ -53,6 +53,8 @@ npm start
 
 App on http://localhost:4200. The app calls the API on its own origin (`/api`); the dev server proxies those requests to http://localhost:5080 (`web/proxy.conf.json`).
 
+To try it on a phone or tablet on the same Wi-Fi, run `npm run start:lan` instead and open `http://<your computer's IP>:4200` there (on a Mac: `ipconfig getifaddr en0`). Only the web port is exposed; `/api` is still proxied to the API on the computer.
+
 The API has no migrations yet: after pulling changes to its data model, delete `api/src/Starter.Api/app.db` once so it is recreated.
 
 ## Roadmap
