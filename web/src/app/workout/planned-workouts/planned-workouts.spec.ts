@@ -5,11 +5,13 @@ import { PlannedWorkouts } from './planned-workouts';
 import { WorkoutService } from '../workout.service';
 import { WorkoutSummary } from '../../models/workout.model';
 import { ConfirmService } from '../../shared/confirm-dialog/confirm.service';
+import { SwipeActions } from '../../shared/swipe-actions/swipe-actions';
 
 describe('PlannedWorkouts', () => {
   let fixture: ComponentFixture<PlannedWorkouts>;
   let component: PlannedWorkouts;
   let startPlan: ReturnType<typeof vi.fn>;
+  let getCurrent: ReturnType<typeof vi.fn>;
   let deletePlan: ReturnType<typeof vi.fn>;
   let ask: ReturnType<typeof vi.fn>;
   let navigate: ReturnType<typeof vi.spyOn>;
@@ -21,6 +23,7 @@ describe('PlannedWorkouts', () => {
 
   async function setUp(plans: WorkoutSummary[]) {
     startPlan = vi.fn();
+    getCurrent = vi.fn().mockResolvedValue(null);
     deletePlan = vi.fn().mockResolvedValue(undefined);
     ask = vi.fn().mockResolvedValue(true);
     const planned = { value: signal(plans), error: signal(undefined), isLoading: signal(false) };
@@ -28,7 +31,7 @@ describe('PlannedWorkouts', () => {
       imports: [PlannedWorkouts],
       providers: [
         provideRouter([]),
-        { provide: WorkoutService, useValue: { planned, startPlan, delete: deletePlan } },
+        { provide: WorkoutService, useValue: { planned, startPlan, getCurrent, delete: deletePlan } },
         { provide: ConfirmService, useValue: { ask } },
       ],
     }).compileComponents();
@@ -63,6 +66,61 @@ describe('PlannedWorkouts', () => {
 
     expect(startPlan).toHaveBeenCalledWith(1);
     expect(navigate).toHaveBeenCalledWith(['/current-workout']);
+  });
+
+  it('does not start a plan when the user says no, and puts a swiped card back', async () => {
+    await setUp([plan(1, 'Push day', null)]);
+    ask.mockResolvedValue(false);
+    const swipe = { reset: vi.fn() } as unknown as SwipeActions;
+
+    await component.start(1, swipe);
+
+    expect(startPlan).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+    expect(swipe.reset).toHaveBeenCalledOnce();
+  });
+
+  it('offers the running workout instead of starting a second one', async () => {
+    await setUp([plan(1, 'Push day', null)]);
+    getCurrent.mockResolvedValue({ id: 9 });
+
+    await component.start(1);
+
+    expect(ask).toHaveBeenCalledWith(expect.objectContaining({ title: 'A workout is already in progress', confirmLabel: 'Open workout' }));
+    expect(startPlan).not.toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalledWith(['/current-workout']);
+  });
+
+  it('stays on the list when the running workout is not opened', async () => {
+    await setUp([plan(1, 'Push day', null)]);
+    getCurrent.mockResolvedValue({ id: 9 });
+    ask.mockResolvedValue(false);
+    const swipe = { reset: vi.fn() } as unknown as SwipeActions;
+
+    await component.start(1, swipe);
+
+    expect(navigate).not.toHaveBeenCalled();
+    expect(swipe.reset).toHaveBeenCalledOnce();
+  });
+
+  it('puts a swiped card back when starting fails', async () => {
+    await setUp([plan(1, 'Push day', null)]);
+    startPlan.mockRejectedValue(new Error('offline'));
+    const swipe = { reset: vi.fn() } as unknown as SwipeActions;
+
+    await component.start(1, swipe);
+
+    expect(navigate).not.toHaveBeenCalled();
+    expect(swipe.reset).toHaveBeenCalledOnce();
+  });
+
+  it('opens a plan for editing when its card is tapped', async () => {
+    await setUp([plan(1, 'Push day', null)]);
+
+    fixture.nativeElement.querySelector('.workout-item-open').click();
+
+    expect(navigate).toHaveBeenCalledWith(['/current-workout'], { queryParams: { plan: 1 } });
+    expect(ask).not.toHaveBeenCalled();
   });
 
   it('deletes a plan only when confirmed', async () => {

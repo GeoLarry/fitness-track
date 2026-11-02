@@ -6,10 +6,10 @@
     } @else {
     @for (workout of workouts.completed.value(); track workout.id) {
     <div class="swipe-row">
-        <div class="swipe-row-action" aria-hidden="true">
+        <div class="swipe-row-action swipe-row-delete" aria-hidden="true">
             <mat-icon>delete</mat-icon>
         </div>
-        <div class="workout-item" appSwipeToDelete #swipe="appSwipeToDelete" (swiped)="delete(workout.id, swipe)">
+        <div class="workout-item" appSwipeActions #swipe="appSwipeActions" (swipedLeft)="delete(workout.id, swipe)">
             <div class="workout-item-text workout-item-open" role="button" tabindex="0" (click)="openPreview(workout)"
                 (keydown.enter)="openPreview(workout)">
                 <div class="workout-item-title">

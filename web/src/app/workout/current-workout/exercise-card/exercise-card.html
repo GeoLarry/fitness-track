@@ -1,6 +1,6 @@
 <mat-card class="exercise-card">
     <mat-card-header>
-        <mat-card-title>
+        <mat-card-title class="exercise-title" role="button" tabindex="0" (click)="showInfo()" (keydown.enter)="showInfo()">
             {{ exercise().name }}
         </mat-card-title>
 

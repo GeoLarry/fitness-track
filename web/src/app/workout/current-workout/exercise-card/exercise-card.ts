@@ -1,4 +1,4 @@
-import { Component, inject, input, model, output, signal } from '@angular/core';
+import { Component, ElementRef, Injector, afterNextRender, inject, input, model, output, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,6 +7,8 @@ import { MatTableModule } from '@angular/material/table';
 import { FormsModule } from '@angular/forms';
 import { Exercise } from '../../../models/exercise.model';
 import { ConfirmService } from '../../../shared/confirm-dialog/confirm.service';
+import { ExerciseInfoService } from '../../../shared/exercise-info/exercise-info.service';
+import { ExerciseCatalogService } from '../../exercise-catalog.service';
 
 // One warm-up or working set. Weight and reps are edited in place.
 export interface ExerciseRow {
@@ -22,6 +24,9 @@ export const newSet = (): ExerciseRow => ({ warmup: false, weight: 0, reps: 0 })
 // Warm-ups always come first, whatever order rows were added in.
 export const warmupsFirst = (rows: ExerciseRow[]) => [...rows.filter(r => r.warmup), ...rows.filter(r => !r.warmup)];
 
+const moveDuration = 220;
+const moveEasing = 'cubic-bezier(0.2, 0, 0, 1)';
+
 // One exercise in the current workout: its warm-ups and sets.
 @Component({
   selector: 'app-exercise-card',
@@ -30,7 +35,11 @@ export const warmupsFirst = (rows: ExerciseRow[]) => [...rows.filter(r => r.warm
   styleUrl: './exercise-card.css',
 })
 export class ExerciseCard {
+  private catalog = inject(ExerciseCatalogService);
   private confirm = inject(ConfirmService);
+  private exerciseInfo = inject(ExerciseInfoService);
+  private element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+  private injector = inject(Injector);
 
   readonly exercise = input.required<Exercise>();
   readonly remove = output<void>();
@@ -41,6 +50,12 @@ export class ExerciseCard {
   readonly rows = model<ExerciseRow[]>([newSet()]);
   readonly currentRow = signal<ExerciseRow | null>(null);
   private readonly editing = signal<{ row: ExerciseRow; field: EditableField } | null>(null);
+
+  // A workout that resumed before the catalog loaded only has the exercise's name, so look it up now.
+  showInfo() {
+    const exercise = this.exercise();
+    this.exerciseInfo.open(this.catalog.exercises.value().find(e => e.id === exercise.id) ?? exercise);
+  }
 
   addWarmup() {
     this.rows.update(rows => warmupsFirst([...rows, { warmup: true, weight: 0, reps: 0 }]));
@@ -99,10 +114,34 @@ export class ExerciseCard {
 
   moveRow(index: number, step: -1 | 1) {
     if (!this.canMove(index, step)) return;
+
+    const rowElements = this.element.querySelectorAll<HTMLElement>('tr[mat-row]');
+    const tapped = rowElements[index];
+    const neighbour = rowElements[index + step];
+    const tappedTop = tapped?.getBoundingClientRect().top;
+    const neighbourTop = neighbour?.getBoundingClientRect().top;
+
     this.rows.update(rows => {
       const moved = [...rows];
       [moved[index], moved[index + step]] = [moved[index + step], moved[index]];
       return moved;
     });
+
+    if (!tapped || !neighbour || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    afterNextRender(() => {
+      this.slideFrom(neighbour, neighbourTop, false);
+      this.slideFrom(tapped, tappedTop, true);
+    }, { injector: this.injector });
+  }
+
+  // Plays a row's jump from its old position to its new one. The tapped row passes over the other.
+  private slideFrom(row: HTMLElement, oldTop: number, lifted: boolean) {
+    const from = `translateY(${oldTop - row.getBoundingClientRect().top}px)`;
+    const raised = lifted ? { zIndex: 1, backgroundColor: 'var(--mat-sys-surface-container-highest)' } : {};
+    row.animate?.([
+      { transform: from, ...raised },
+      { transform: 'none', ...raised, offset: 0.8 },
+      { transform: 'none', ...(lifted ? { zIndex: 1, backgroundColor: 'transparent' } : {}) },
+    ], { duration: moveDuration, easing: moveEasing });
   }
 }

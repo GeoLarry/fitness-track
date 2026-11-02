@@ -1,21 +1,25 @@
 import { Component, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { SwipeToDelete } from './swipe-to-delete';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { SwipeActions } from './swipe-actions';
 
 @Component({
-  imports: [SwipeToDelete],
+  imports: [SwipeActions],
   template: `
-    <div appSwipeToDelete #swipe="appSwipeToDelete" class="host" (swiped)="swipes.set(swipes() + 1)">
+    <div appSwipeActions #swipe="appSwipeActions" class="host" [allowRight]="allowRight()" (swipedLeft)="swipes.set(swipes() + 1)"
+      (swipedRight)="rightSwipes.set(rightSwipes() + 1)">
       <span class="content" role="button" tabindex="0" (click)="clicks.set(clicks() + 1)" (keydown.enter)="clicks.set(clicks() + 1)">Text</span>
       <button type="button" class="action" (click)="swipe.reset()">Action</button>
     </div>`,
 })
 class Host {
+  readonly allowRight = signal(false);
   readonly swipes = signal(0);
+  readonly rightSwipes = signal(0);
   readonly clicks = signal(0);
 }
 
-describe('SwipeToDelete', () => {
+describe('SwipeActions', () => {
+  let fixture: ComponentFixture<Host>;
   let host: Host;
   let element: HTMLElement;
 
@@ -32,7 +36,7 @@ describe('SwipeToDelete', () => {
 
   beforeEach(() => {
     HTMLElement.prototype.setPointerCapture = vi.fn();
-    const fixture = TestBed.createComponent(Host);
+    fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
     host = fixture.componentInstance;
     element = fixture.nativeElement.querySelector('.host');
@@ -66,10 +70,40 @@ describe('SwipeToDelete', () => {
     expect(element.style.transform).toBe('');
   });
 
-  it('ignores moves to the right', () => {
+  it('ignores moves to the right unless they are allowed', () => {
     swipe(element, -150);
 
-    expect(host.swipes()).toBe(0);
+    expect(host.rightSwipes()).toBe(0);
+    expect(element.style.transform).toBe('');
+  });
+
+  describe('with allowRight', () => {
+    beforeEach(() => {
+      host.allowRight.set(true);
+      fixture.detectChanges();
+    });
+
+    it('emits and stays open past the action distance to the right', () => {
+      swipe(element, -150);
+
+      expect(host.rightSwipes()).toBe(1);
+      expect(host.swipes()).toBe(0);
+      expect(element.style.transform).toBe('translateX(120px)');
+    });
+
+    it('goes back below the action distance', () => {
+      swipe(element, -60);
+
+      expect(host.rightSwipes()).toBe(0);
+      expect(element.style.transform).toBe('');
+    });
+
+    it('still swipes to the left', () => {
+      swipe(element, 150);
+
+      expect(host.swipes()).toBe(1);
+      expect(host.rightSwipes()).toBe(0);
+    });
   });
 
   it('can start on a button without pressing it', () => {

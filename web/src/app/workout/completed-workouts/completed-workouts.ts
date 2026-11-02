@@ -10,12 +10,12 @@ import { WorkoutPreview } from './workout-preview/workout-preview';
 import { WorkoutSummary } from '../../models/workout.model';
 import { ConfirmService } from '../../shared/confirm-dialog/confirm.service';
 import { apiErrorMessage } from '../../shared/http/api-error';
-import { SwipeToDelete } from '../../shared/swipe-to-delete/swipe-to-delete';
+import { SwipeActions } from '../../shared/swipe-actions/swipe-actions';
 
 // The workout history, newest first. Tap a workout for its sets, swipe it left to delete it.
 @Component({
   selector: 'app-completed-workouts',
-  imports: [DatePipe, DecimalPipe, MatButtonModule, MatIconModule, SwipeToDelete],
+  imports: [DatePipe, DecimalPipe, MatButtonModule, MatIconModule, SwipeActions],
   templateUrl: './completed-workouts.html',
   styleUrl: '../workout-list.css',
 })
@@ -38,7 +38,7 @@ export class CompletedWorkouts {
   }
 
   // A swiped card goes back to its place unless the workout was really deleted.
-  async delete(id: number, swipe?: SwipeToDelete) {
+  async delete(id: number, swipe?: SwipeActions) {
     try {
       if (await this.confirm.ask({ title: 'Delete this workout from your history?', confirmLabel: 'Delete' })) {
         await this.workouts.delete(id);

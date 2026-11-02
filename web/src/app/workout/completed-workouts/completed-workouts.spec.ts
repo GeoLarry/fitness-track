@@ -6,7 +6,7 @@ import { WorkoutSummary } from '../../models/workout.model';
 import { ConfirmService } from '../../shared/confirm-dialog/confirm.service';
 import { MatDialog } from '@angular/material/dialog';
 import { WorkoutPreview } from './workout-preview/workout-preview';
-import { SwipeToDelete } from '../../shared/swipe-to-delete/swipe-to-delete';
+import { SwipeActions } from '../../shared/swipe-actions/swipe-actions';
 
 describe('CompletedWorkouts', () => {
   let fixture: ComponentFixture<CompletedWorkouts>;
@@ -69,7 +69,7 @@ describe('CompletedWorkouts', () => {
 
   it('puts a swiped card back unless the workout was deleted', async () => {
     await setUp([done(1, 'Leg day')]);
-    const swipe = { reset: vi.fn() } as unknown as SwipeToDelete;
+    const swipe = { reset: vi.fn() } as unknown as SwipeActions;
 
     ask.mockResolvedValue(false);
     await component.delete(1, swipe);

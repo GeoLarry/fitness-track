@@ -1,18 +1,30 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { Mock } from 'vitest';
 
 import { ExerciseCard, ExerciseRow } from './exercise-card';
 import { ConfirmService } from '../../../shared/confirm-dialog/confirm.service';
+import { ExerciseInfoService } from '../../../shared/exercise-info/exercise-info.service';
+import { ExerciseCatalogService } from '../../exercise-catalog.service';
+import { Exercise } from '../../../models/exercise.model';
 
 describe('ExerciseCard', () => {
   let component: ExerciseCard;
   let fixture: ComponentFixture<ExerciseCard>;
   let ask: ReturnType<typeof vi.fn>;
+  let openInfo: ReturnType<typeof vi.fn>;
+  let catalogExercises: Exercise[];
 
   beforeEach(async () => {
     ask = vi.fn().mockResolvedValue(true);
+    openInfo = vi.fn();
+    catalogExercises = [];
     await TestBed.configureTestingModule({
       imports: [ExerciseCard],
-      providers: [{ provide: ConfirmService, useValue: { ask } }],
+      providers: [
+        { provide: ConfirmService, useValue: { ask } },
+        { provide: ExerciseInfoService, useValue: { open: openInfo } },
+        { provide: ExerciseCatalogService, useValue: { exercises: { value: () => catalogExercises } } },
+      ],
     })
     .compileComponents();
 
@@ -46,6 +58,25 @@ describe('ExerciseCard', () => {
     expect(component.getSetNumber(2)).toBe(2);
   });
 
+  describe('tapping the title', () => {
+    const tapTitle = () => fixture.nativeElement.querySelector('.exercise-title').click();
+
+    it('opens the full exercise from the catalog', () => {
+      const full = { ...component.exercise(), description: 'Press the bar up.' };
+      catalogExercises = [full];
+
+      tapTitle();
+
+      expect(openInfo).toHaveBeenCalledWith(full);
+    });
+
+    it('falls back to the exercise on the card', () => {
+      tapTitle();
+
+      expect(openInfo).toHaveBeenCalledWith(component.exercise());
+    });
+  });
+
   describe('moving rows', () => {
     const set = (weight: number, warmup = false): ExerciseRow => ({ warmup, weight, reps: 5 });
     const moveButtons = (label: string) =>
@@ -64,6 +95,37 @@ describe('ExerciseCard', () => {
       expect(component.getSetNumber(2)).toBe(1);
       const weights = [...fixture.nativeElement.querySelectorAll('.editable')].map(e => (e as HTMLElement).textContent.trim());
       expect(weights.filter(w => w.endsWith('kg'))).toEqual(['20 kg', '30 kg', '70 kg', '60 kg']);
+    });
+
+    describe('animation', () => {
+      let animate: Mock<HTMLElement['animate']>;
+
+      beforeEach(() => {
+        animate = vi.fn<HTMLElement['animate']>();
+        HTMLElement.prototype.animate = animate;
+      });
+
+      afterEach(() => {
+        delete (HTMLElement.prototype as Partial<HTMLElement>).animate;
+        delete (window as Partial<Window>).matchMedia;
+      });
+
+      it('slides both rows', async () => {
+        component.moveRow(3, -1);
+        await fixture.whenStable();
+
+        expect(animate).toHaveBeenCalledTimes(2);
+      });
+
+      it('moves at once when the user prefers reduced motion', async () => {
+        window.matchMedia = vi.fn<typeof window.matchMedia>().mockReturnValue({ matches: true } as MediaQueryList);
+
+        component.moveRow(3, -1);
+        await fixture.whenStable();
+
+        expect(animate).not.toHaveBeenCalled();
+        expect(component.rows().map(r => r.weight)).toEqual([20, 30, 70, 60]);
+      });
     });
 
     it('swaps warm-ups with each other', () => {
