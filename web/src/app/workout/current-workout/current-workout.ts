@@ -127,6 +127,11 @@ export class CurrentWorkout {
 
   // Live: saves and completes the workout, then shows the history. Plan: saves it, then shows the plans.
   async done() {
+    if (this.mode === 'live' && this.exerciseCards().length === 0) {
+      this.snackBar.open('Add an exercise before finishing, or use X to cancel the workout.', 'OK', { duration: 5000 });
+      return;
+    }
+
     const confirmed = await this.confirm.ask(this.mode === 'live'
       ? { title: 'Finish this workout?', message: 'It will be saved and moved to your completed workouts.', confirmLabel: 'Finish' }
       : { title: 'Save this plan and close?', confirmLabel: 'Save' });
