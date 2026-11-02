@@ -1,35 +1,52 @@
 import { Component, inject } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { WorkoutService } from '../workout.service';
+import { workoutDuration } from '../workout-duration';
+import { WorkoutPreview } from './workout-preview/workout-preview';
+import { WorkoutSummary } from '../../models/workout.model';
+import { ConfirmService } from '../../shared/confirm-dialog/confirm.service';
 import { apiErrorMessage } from '../../shared/http/api-error';
+import { SwipeToDelete } from '../../shared/swipe-to-delete/swipe-to-delete';
 
-// The workout history, newest first.
+// The workout history, newest first. Tap a workout for its sets, swipe it left to delete it.
 @Component({
   selector: 'app-completed-workouts',
-  imports: [DatePipe, DecimalPipe, MatButtonModule, MatIconModule],
+  imports: [DatePipe, DecimalPipe, MatButtonModule, MatIconModule, SwipeToDelete],
   templateUrl: './completed-workouts.html',
   styleUrl: '../workout-list.css',
 })
 export class CompletedWorkouts {
+  private confirm = inject(ConfirmService);
+  private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
   readonly workouts = inject(WorkoutService);
 
-  // e.g. "1 h 05 min" or "48 min".
-  duration(seconds: number | null): string {
-    if (seconds === null) return '';
-    const minutes = Math.round(seconds / 60);
-    return minutes >= 60 ? `${Math.floor(minutes / 60)} h ${(minutes % 60).toString().padStart(2, '0')} min` : `${minutes} min`;
+  readonly duration = workoutDuration;
+
+  openPreview(workout: WorkoutSummary) {
+    this.dialog.open(WorkoutPreview, {
+      data: workout,
+      width: '100vw',
+      height: '100vh',
+      maxWidth: '100vw',
+      panelClass: 'full-screen-dialog'
+    });
   }
 
-  async delete(id: number) {
-    if (!confirm('Delete this workout from your history?')) return;
+  // A swiped card goes back to its place unless the workout was really deleted.
+  async delete(id: number, swipe?: SwipeToDelete) {
     try {
-      await this.workouts.delete(id);
+      if (await this.confirm.ask({ title: 'Delete this workout from your history?', confirmLabel: 'Delete' })) {
+        await this.workouts.delete(id);
+        return;
+      }
     } catch (error) {
       this.snackBar.open(apiErrorMessage(error), 'OK', { duration: 5000 });
     }
+    swipe?.reset();
   }
 }

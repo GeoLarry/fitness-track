@@ -4,11 +4,14 @@ import { provideRouter, Router } from '@angular/router';
 import { PlannedWorkouts } from './planned-workouts';
 import { WorkoutService } from '../workout.service';
 import { WorkoutSummary } from '../../models/workout.model';
+import { ConfirmService } from '../../shared/confirm-dialog/confirm.service';
 
 describe('PlannedWorkouts', () => {
   let fixture: ComponentFixture<PlannedWorkouts>;
   let component: PlannedWorkouts;
   let startPlan: ReturnType<typeof vi.fn>;
+  let deletePlan: ReturnType<typeof vi.fn>;
+  let ask: ReturnType<typeof vi.fn>;
   let navigate: ReturnType<typeof vi.spyOn>;
 
   const plan = (id: number, name: string | null, plannedForUtc: string | null): WorkoutSummary => ({
@@ -18,10 +21,16 @@ describe('PlannedWorkouts', () => {
 
   async function setUp(plans: WorkoutSummary[]) {
     startPlan = vi.fn();
+    deletePlan = vi.fn().mockResolvedValue(undefined);
+    ask = vi.fn().mockResolvedValue(true);
     const planned = { value: signal(plans), error: signal(undefined), isLoading: signal(false) };
     await TestBed.configureTestingModule({
       imports: [PlannedWorkouts],
-      providers: [provideRouter([]), { provide: WorkoutService, useValue: { planned, startPlan } }],
+      providers: [
+        provideRouter([]),
+        { provide: WorkoutService, useValue: { planned, startPlan, delete: deletePlan } },
+        { provide: ConfirmService, useValue: { ask } },
+      ],
     }).compileComponents();
 
     navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
@@ -54,6 +63,18 @@ describe('PlannedWorkouts', () => {
 
     expect(startPlan).toHaveBeenCalledWith(1);
     expect(navigate).toHaveBeenCalledWith(['/current-workout']);
+  });
+
+  it('deletes a plan only when confirmed', async () => {
+    await setUp([plan(1, 'Push day', null)]);
+
+    ask.mockResolvedValue(false);
+    await component.delete(1);
+    expect(deletePlan).not.toHaveBeenCalled();
+
+    ask.mockResolvedValue(true);
+    await component.delete(1);
+    expect(deletePlan).toHaveBeenCalledWith(1);
   });
 
   it('opens a plan for editing', async () => {

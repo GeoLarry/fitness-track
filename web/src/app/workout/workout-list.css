@@ -35,3 +35,36 @@
 .workout-list-empty {
     opacity: 0.7;
 }
+
+/* A completed workout: the card slides left to uncover the delete action behind it. */
+.swipe-row {
+    position: relative;
+    width: 478px;
+    max-width: 100%;
+    overflow: hidden;
+
+    .workout-item {
+        position: relative;
+        box-sizing: border-box;
+        width: 100%;
+        background: var(--mat-sys-surface);
+        user-select: none;
+    }
+}
+
+/* Inset by a pixel so it does not show around the card's rounded corners. */
+.swipe-row-action {
+    position: absolute;
+    inset: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 48px;
+    border-radius: 16px;
+    background: var(--mat-sys-error);
+    color: var(--mat-sys-on-error);
+}
+
+.workout-item-open {
+    cursor: pointer;
+}

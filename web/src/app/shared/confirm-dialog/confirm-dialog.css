@@ -1,0 +1,5 @@
+/* styles.css makes every dialog surface see-through, so this one brings its own background. */
+.confirm-dialog {
+    background: var(--mat-sys-surface-container-high);
+    border-radius: 16px;
+}
