@@ -191,49 +191,196 @@ describe('CurrentWorkout', () => {
     expect(navigate).toHaveBeenCalledWith(['/training']);
   });
 
-  describe('leaving', () => {
-    const leaveAfterChange = async () => {
+  describe('autosave', () => {
+    const changeReps = (reps: number) => {
+      component.updateRows(component.exerciseCards()[0].key, [{ warmup: false, weight: 80, reps }]);
+      TestBed.tick();
+    };
+    const savedReps = (call: number) => workouts.save.mock.calls[call][1].exercises[0].sets[0].reps;
+
+    async function setUpLive() {
       workouts.getCurrent.mockResolvedValue(workout({ exercises: [benchPress] }));
+      workouts.save.mockResolvedValue(workout({}));
       await setUp({ mode: 'start-workout' });
-      component.updateRows(component.exerciseCards()[0].key, [{ warmup: false, weight: 80, reps: 8 }]);
+      vi.useFakeTimers();
+      TestBed.tick();
+    }
+
+    afterEach(() => vi.useRealTimers());
+
+    it('saves nothing when nothing changed', async () => {
+      await setUpLive();
+
+      await vi.advanceTimersByTimeAsync(5000);
+
+      expect(workouts.save).not.toHaveBeenCalled();
+    });
+
+    it('saves once, a second after the last of several changes', async () => {
+      await setUpLive();
+
+      changeReps(1);
+      await vi.advanceTimersByTimeAsync(500);
+      changeReps(2);
+      await vi.advanceTimersByTimeAsync(999);
+      expect(workouts.save).not.toHaveBeenCalled();
+
+      await vi.advanceTimersByTimeAsync(1);
+      expect(workouts.save).toHaveBeenCalledTimes(1);
+      expect(savedReps(0)).toBe(2);
+      expect(component.saveState()).toBe('saved');
+    });
+
+    it('waits for a running save, then sends the newer state', async () => {
+      await setUpLive();
+      let finishFirst!: (value: Workout) => void;
+      workouts.save.mockReturnValueOnce(new Promise<Workout>(resolve => finishFirst = resolve));
+
+      changeReps(1);
+      await vi.advanceTimersByTimeAsync(1000);
+      changeReps(2);
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(workouts.save).toHaveBeenCalledTimes(1);
+
+      finishFirst(workout({}));
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(workouts.save).toHaveBeenCalledTimes(2);
+      expect(savedReps(1)).toBe(2);
+    });
+
+    it('says when a save failed and tries again', async () => {
+      await setUpLive();
+      workouts.save.mockRejectedValueOnce(new Error('offline'));
+
+      changeReps(1);
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(component.saveState()).toBe('failed');
+
+      await vi.advanceTimersByTimeAsync(10000);
+      expect(workouts.save).toHaveBeenCalledTimes(2);
+      expect(component.saveState()).toBe('saved');
+    });
+
+    it('saves straight away when the page is closed', async () => {
+      await setUpLive();
+
+      changeReps(1);
+      window.dispatchEvent(new Event('pagehide'));
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(workouts.save).toHaveBeenCalledTimes(1);
+    });
+
+    it('finishes after the save that is running', async () => {
+      await setUpLive();
+      workouts.complete.mockResolvedValue(workout({ status: 'Completed' }));
+      let finishSave!: (value: Workout) => void;
+      workouts.save.mockReturnValueOnce(new Promise<Workout>(resolve => finishSave = resolve));
+
+      changeReps(1);
+      await vi.advanceTimersByTimeAsync(1000);
+      const done = component.done();
+      await vi.advanceTimersByTimeAsync(0);
+      expect(workouts.complete).not.toHaveBeenCalled();
+
+      finishSave(workout({}));
+      await vi.advanceTimersByTimeAsync(0);
+      await done;
+
+      expect(workouts.complete).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not save over a cancelled workout', async () => {
+      await setUpLive();
+      workouts.delete.mockResolvedValue(undefined);
+
+      changeReps(1);
+      await component.cancel();
+      await vi.advanceTimersByTimeAsync(5000);
+
+      expect(workouts.delete).toHaveBeenCalledWith(5);
+      expect(workouts.save).not.toHaveBeenCalled();
+    });
+
+    it('does not autosave a plan', async () => {
+      workouts.get.mockResolvedValue(workout({ status: 'Planned', exercises: [benchPress] }));
+      await setUp({ plan: '5' });
+      vi.useFakeTimers();
+
+      changeReps(1);
+      await vi.advanceTimersByTimeAsync(5000);
+
+      expect(workouts.save).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('leaving', () => {
+    const live = async (exercises = [benchPress]) => {
+      workouts.getCurrent.mockResolvedValue(workout({ exercises }));
+      await setUp({ mode: 'start-workout' });
       ask.mockClear();
     };
+    const change = () => component.updateRows(component.exerciseCards()[0].key, [{ warmup: false, weight: 80, reps: 8 }]);
 
-    it('leaves without asking when nothing changed', async () => {
-      workouts.getCurrent.mockResolvedValue(workout({ exercises: [benchPress] }));
-      await setUp({ mode: 'start-workout' });
-      ask.mockClear();
+    it('saves a live workout and leaves without asking', async () => {
+      await live();
+      workouts.save.mockResolvedValue(workout({}));
+      change();
 
       expect(await component.canLeave()).toBe(true);
+      expect(workouts.save).toHaveBeenCalledTimes(1);
       expect(ask).not.toHaveBeenCalled();
     });
 
-    it('asks before losing changes and stays when the user says no', async () => {
-      await leaveAfterChange();
+    it('asks when the save fails, and stays if the user says no', async () => {
+      await live();
+      workouts.save.mockRejectedValue(new Error('offline'));
       ask.mockResolvedValue(false);
+      change();
 
       expect(await component.canLeave()).toBe(false);
       expect(ask).toHaveBeenCalledWith(expect.objectContaining({ title: 'Leave without saving?' }));
     });
 
-    it('does not ask after a save', async () => {
-      await leaveAfterChange();
-      workouts.save.mockResolvedValue(workout({}));
-
-      await component.onSave();
+    it('deletes a live workout without exercises', async () => {
+      await live([]);
+      workouts.delete.mockResolvedValue(undefined);
 
       expect(await component.canLeave()).toBe(true);
+      expect(workouts.delete).toHaveBeenCalledWith(5);
       expect(ask).not.toHaveBeenCalled();
     });
 
+    it('leaves even if deleting the empty workout fails', async () => {
+      await live([]);
+      workouts.delete.mockRejectedValue(new Error('offline'));
+
+      expect(await component.canLeave()).toBe(true);
+    });
+
     it('does not ask again after cancelling', async () => {
-      await leaveAfterChange();
+      await live();
       workouts.delete.mockResolvedValue(undefined);
       await component.cancel();
       ask.mockClear();
 
       expect(await component.canLeave()).toBe(true);
       expect(ask).not.toHaveBeenCalled();
+    });
+
+    it('asks before losing changes to a plan', async () => {
+      workouts.get.mockResolvedValue(workout({ status: 'Planned', exercises: [benchPress] }));
+      await setUp({ plan: '5' });
+      ask.mockClear();
+      ask.mockResolvedValue(false);
+
+      expect(await component.canLeave()).toBe(true);
+      expect(ask).not.toHaveBeenCalled();
+
+      change();
+      expect(await component.canLeave()).toBe(false);
+      expect(workouts.save).not.toHaveBeenCalled();
     });
   });
 

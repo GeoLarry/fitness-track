@@ -57,6 +57,17 @@
     font-variant-numeric: tabular-nums;
 }
 
+.cw-save-state {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 12px;
+    text-align: center;
+}
+
+.cw-save-failed {
+    color: var(--mat-sys-error);
+    font-weight: 600;
+}
+
 .cw-title {
     margin: 0;
     color: var(--mat-sys-on-surface-variant);

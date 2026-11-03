@@ -69,6 +69,7 @@ The API has no migrations yet: after pulling changes to its data model, delete `
 - [x] The web app uses the workouts API (current UI): live workout resumed after a reload, Save and Done, plans to start or edit, history; dates come back from the API as UTC
 - [x] Redesign, step 1: dark athletic theme, bottom bar on phones and side column on computers instead of the side menu and tabs, History and Profile pages
 - [x] Redesign, step 2: live workout in the new design, no bottom bar during it on phones, a question before leaving with unsaved changes
+- [x] A live workout saves itself after every change, and when the page goes to the background
 - [ ] Redesign, next steps: History with a weekly summary, Training and dialogs, Home
 - [ ] Workout screens in the new design, on the workouts API: Training → new workout (live, saved at any time, Done moves it to Completed) or plan (saved for later in Planned)
 - [ ] Better adding of exercises, sets, warm-ups and custom exercises

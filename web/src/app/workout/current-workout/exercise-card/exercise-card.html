@@ -46,7 +46,7 @@
                     </div>
                     } @else {
                     <input type="number" inputmode="numeric" pattern="[0-9]*" class="edit-input"
-                        [(ngModel)]="row.weight" (blur)="stopEdit()"
+                        [ngModel]="row.weight" (ngModelChange)="setValue(row, 'weight', $event)" (blur)="stopEdit()"
                         (keydown.enter)="stopEdit()" />
                     }
                 </td>
@@ -61,7 +61,7 @@
                     </div>
                     } @else {
                     <input type="number" inputmode="numeric" pattern="[0-9]*" class="edit-input"
-                        [(ngModel)]="row.reps" (blur)="stopEdit()"
+                        [ngModel]="row.reps" (ngModelChange)="setValue(row, 'reps', $event)" (blur)="stopEdit()"
                         (keydown.enter)="stopEdit()" />
                     }
                 </td>
