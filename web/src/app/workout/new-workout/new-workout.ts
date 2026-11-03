@@ -1,37 +1,31 @@
-import { Component, inject } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
+import { Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { NgForm, FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { WorkoutService } from '../workout.service';
 
-export interface newWorkoutOptions {
-  id: string;
-  message: string;
-}
-
+// The two ways to begin: a workout now, or a plan for later. Opening a live workout resumes the one in progress.
 @Component({
   selector: 'app-new-workout',
-  imports: [MatCardModule, MatFormFieldModule, MatSelectModule, MatButtonModule, FormsModule],
+  imports: [MatButtonModule, MatIconModule, RouterLink],
   templateUrl: './new-workout.html',
   styleUrl: './new-workout.css',
 })
 export class NewWorkout {
-  private route = inject(Router);
+  private workouts = inject(WorkoutService);
 
-  workoutOptions: newWorkoutOptions[] = [
-    { id: 'start-workout', message: 'Start now a workout' },
-    { id: 'plan-workout', message: 'Plan a workout' },
-  ]
+  readonly inProgress = signal(false);
 
-  onStartWorkout(form: NgForm) {
-    const workoutOption = form.value.workout;
-    if(workoutOption === 'start-workout') {
-      this.route.navigate(['/current-workout'], {queryParams: { mode: 'start-workout' }});
-    } else {
-      this.route.navigate(['/current-workout'], {queryParams: { mode: 'plan-workout' }});
+  constructor() {
+    void this.checkInProgress();
+  }
+
+  // On failure the button keeps saying Start, and it still resumes a workout in progress.
+  private async checkInProgress() {
+    try {
+      this.inProgress.set(await this.workouts.getCurrent() !== null);
+    } catch {
+      this.inProgress.set(false);
     }
-
   }
 }
