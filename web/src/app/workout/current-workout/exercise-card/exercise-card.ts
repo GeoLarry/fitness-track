@@ -1,4 +1,4 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, input, model, output, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,10 +17,10 @@ export interface ExerciseRow {
 
 type EditableField = 'weight' | 'reps';
 
-const newSet = (): ExerciseRow => ({ warmup: false, weight: 0, reps: 0 });
+export const newSet = (): ExerciseRow => ({ warmup: false, weight: 0, reps: 0 });
 
 // Warm-ups always come first, whatever order rows were added or dragged in.
-const warmupsFirst = (rows: ExerciseRow[]) => [...rows.filter(r => r.warmup), ...rows.filter(r => !r.warmup)];
+export const warmupsFirst = (rows: ExerciseRow[]) => [...rows.filter(r => r.warmup), ...rows.filter(r => !r.warmup)];
 
 // One exercise in the current workout: its warm-ups and sets.
 @Component({
@@ -35,7 +35,8 @@ export class ExerciseCard {
 
   readonly displayedColumns = ['counter', 'weight', 'reps', 'actions'];
 
-  readonly rows = signal<ExerciseRow[]>([newSet()]);
+  // Two-way: the workout passes saved sets in and hears about every change.
+  readonly rows = model<ExerciseRow[]>([newSet()]);
   readonly currentRow = signal<ExerciseRow | null>(null);
   private readonly editing = signal<{ row: ExerciseRow; field: EditableField } | null>(null);
 
@@ -60,8 +61,10 @@ export class ExerciseCard {
     this.editing.set({ row, field });
   }
 
+  // Weight and reps are edited on the row itself; a new array tells the workout they changed.
   stopEdit() {
     this.editing.set(null);
+    this.rows.update(rows => [...rows]);
   }
 
   clearCard() {

@@ -1,1 +1,26 @@
-<p>completed-workouts works!</p>
+<section class="workout-list">
+    @if (workouts.completed.error()) {
+    <p class="workout-list-empty">Could not load your workouts.</p>
+    } @else if (workouts.completed.isLoading() && workouts.completed.value().length === 0) {
+    <p class="workout-list-empty">Loading…</p>
+    } @else {
+    @for (workout of workouts.completed.value(); track workout.id) {
+    <div class="workout-item">
+        <div class="workout-item-text">
+            <div class="workout-item-title">
+                {{ workout.name || 'Workout' }} · {{ workout.completedAtUtc | date: 'EEE d MMM, HH:mm' }}
+            </div>
+            <div class="workout-item-meta">
+                {{ duration(workout.durationSeconds) }} · {{ workout.exerciseCount }} exercises · {{ workout.setCount }} sets
+                · {{ workout.volumeKg | number: '1.0-1' }} kg
+            </div>
+        </div>
+        <button mat-icon-button aria-label="Delete this workout" (click)="delete(workout.id)">
+            <mat-icon>delete</mat-icon>
+        </button>
+    </div>
+    } @empty {
+    <p class="workout-list-empty">No completed workouts yet.</p>
+    }
+    }
+</section>

@@ -1,0 +1,37 @@
+.workout-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 16px 90px;
+}
+
+.workout-item {
+    width: 478px;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 8px 12px 16px;
+    border: 1px solid #2d3038;
+    border-radius: 16px;
+}
+
+.workout-item-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.workout-item-title {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.workout-item-meta {
+    opacity: 0.7;
+    font-size: 14px;
+}
+
+.workout-list-empty {
+    opacity: 0.7;
+}

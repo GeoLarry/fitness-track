@@ -5,21 +5,48 @@
                 <mat-icon>clear</mat-icon>
             </button>
 
+            @if (mode === 'live') {
+            <div class="cw-elapsed" aria-label="Time since the workout started">{{ elapsed() }}</div>
+            }
+
             <div class="cw-controls-right">
-                <button mat-fab class="cw-done-btn" aria-label="Finish the workout">
+                <button mat-fab class="cw-save-btn" aria-label="Save the workout" [disabled]="loading() || busy()" (click)="onSave()">
+                    <mat-icon>save</mat-icon>
+                </button>
+                <button mat-fab class="cw-done-btn" [attr.aria-label]="mode === 'live' ? 'Finish the workout' : 'Save the plan and close'"
+                    [disabled]="loading() || busy()" (click)="done()">
                     <mat-icon>check</mat-icon>
                 </button>
             </div>
         </div>
+
+        @if (mode === 'plan') {
+        <div class="cw-plan-fields">
+            <mat-form-field>
+                <mat-label>Plan name</mat-label>
+                <input matInput maxlength="100" [ngModel]="name()" (ngModelChange)="name.set($event)" />
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Day (optional)</mat-label>
+                <input matInput type="date" [ngModel]="plannedFor()" (ngModelChange)="plannedFor.set($event)" />
+            </mat-form-field>
+        </div>
+        } @else if (name()) {
+        <h2 class="cw-title">{{ name() }}</h2>
+        }
+
         <div class="exercise-btn">
-            <button mat-raised-button class="cw-add-ex" (click)="openExercisesPopup()">
+            <button mat-raised-button class="cw-add-ex" [disabled]="loading()" (click)="openExercisesPopup()">
                 <mat-icon>add</mat-icon>
                 <span>Exercise</span>
             </button>
         </div>
     </div>
     @for (card of exerciseCards(); track card.key) {
-    <app-exercise-card [exercise]="card.exercise" (remove)="deleteCard(card.key)"></app-exercise-card>
+    <app-exercise-card [exercise]="card.exercise" [rows]="card.rows" (rowsChange)="updateRows(card.key, $event)"
+        (remove)="deleteCard(card.key)"></app-exercise-card>
     }
+    @if (mode === 'live') {
     <app-timer></app-timer>
+    }
 </section>

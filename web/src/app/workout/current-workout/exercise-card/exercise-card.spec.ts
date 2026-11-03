@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ExerciseCard } from './exercise-card';
+import { ExerciseCard, ExerciseRow } from './exercise-card';
 
 describe('ExerciseCard', () => {
   let component: ExerciseCard;
@@ -55,5 +55,18 @@ describe('ExerciseCard', () => {
     component.clearCard();
 
     expect(component.rows()).toEqual([{ warmup: false, weight: 0, reps: 0 }]);
+  });
+
+  it('shows the sets it is given and reports edits', () => {
+    const changes: ExerciseRow[][] = [];
+    component.rows.subscribe(rows => changes.push(rows));
+    fixture.componentRef.setInput('rows', [{ warmup: false, weight: 70, reps: 8 }]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('70 kg');
+
+    component.rows()[0].reps = 10;
+    component.stopEdit();
+
+    expect(changes.at(-1)).toEqual([{ warmup: false, weight: 70, reps: 10 }]);
   });
 });
