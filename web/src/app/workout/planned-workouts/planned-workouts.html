@@ -5,23 +5,40 @@
     <p class="workout-list-empty">Loading…</p>
     } @else {
     @for (plan of workouts.planned.value(); track plan.id) {
-    <div class="workout-item">
-        <div class="workout-item-text">
-            <div class="workout-item-title">{{ plan.name || 'Untitled plan' }}</div>
-            <div class="workout-item-meta">
-                {{ plan.plannedForUtc ? (plan.plannedForUtc | date: 'EEE d MMM' : 'UTC') : 'Any day' }}
-                · {{ plan.exerciseCount }} exercises · {{ plan.setCount }} sets
-            </div>
-        </div>
-        <button mat-icon-button aria-label="Start this plan" (click)="start(plan.id)">
+    <div class="swipe-row">
+        <div class="swipe-row-action swipe-row-start" aria-hidden="true">
             <mat-icon>play_arrow</mat-icon>
-        </button>
-        <button mat-icon-button aria-label="Edit this plan" (click)="edit(plan.id)">
-            <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button aria-label="Delete this plan" (click)="delete(plan.id)">
+        </div>
+        <div class="swipe-row-action swipe-row-delete" aria-hidden="true">
             <mat-icon>delete</mat-icon>
-        </button>
+        </div>
+        <div class="workout-item" appSwipeActions #swipe="appSwipeActions" [allowRight]="true" (swipedLeft)="delete(plan.id, swipe)"
+            (swipedRight)="start(plan.id, swipe)">
+            <div class="workout-item-text workout-item-open" role="button" tabindex="0" (click)="edit(plan.id)" (keydown.enter)="edit(plan.id)">
+                <div class="workout-item-title">{{ plan.name || 'Untitled plan' }}</div>
+                <div class="workout-item-meta">
+                    {{ plan.plannedForUtc ? (plan.plannedForUtc | date: 'EEE d MMM' : 'UTC') : 'Any day' }}
+                    · {{ plan.exerciseCount }} exercises · {{ plan.setCount }} sets
+                </div>
+            </div>
+            <button mat-icon-button aria-label="Plan options" [matMenuTriggerFor]="planMenu">
+                <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #planMenu="matMenu">
+                <button mat-menu-item (click)="start(plan.id)">
+                    <mat-icon>play_arrow</mat-icon>
+                    Start
+                </button>
+                <button mat-menu-item (click)="edit(plan.id)">
+                    <mat-icon>edit</mat-icon>
+                    Edit
+                </button>
+                <button mat-menu-item (click)="delete(plan.id)">
+                    <mat-icon>delete</mat-icon>
+                    Delete
+                </button>
+            </mat-menu>
+        </div>
     </div>
     } @empty {
     <p class="workout-list-empty">No plans yet. Choose "Plan a workout" under New Workout.</p>

@@ -1,0 +1,41 @@
+<div class="preview">
+    <header class="preview-header">
+        <div class="preview-heading">
+            <h2>{{ workout.name || 'Workout' }}</h2>
+            <p>{{ workout.completedAtUtc | date: 'EEE d MMM, HH:mm' }}</p>
+            <p>
+                {{ duration(workout.durationSeconds) }} · {{ workout.exerciseCount }} exercises · {{ workout.setCount }} sets
+                · {{ workout.volumeKg | number: '1.0-1' }} kg
+            </p>
+        </div>
+        <button mat-icon-button aria-label="Close" (click)="close()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </header>
+
+    @if (error(); as message) {
+    <p class="preview-note">{{ message }}</p>
+    } @else if (loading()) {
+    <p class="preview-note">Loading…</p>
+    } @else {
+    @for (exercise of exercises(); track $index) {
+    <section class="preview-exercise">
+        <h3>{{ exercise.exerciseName }}</h3>
+        @for (set of exercise.sets; track $index) {
+        <div class="preview-set">
+            <span class="preview-set-number">
+                @if (set.isWarmup) {
+                <mat-icon aria-label="Warm-up">local_fire_department</mat-icon>
+                } @else {
+                {{ setNumber(exercise.sets, $index) }}
+                }
+            </span>
+            <span>{{ set.weightKg }} kg × {{ set.reps }}</span>
+        </div>
+        }
+    </section>
+    } @empty {
+    <p class="preview-note">No exercises in this workout.</p>
+    }
+    }
+</div>
