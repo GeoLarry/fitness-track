@@ -14,6 +14,7 @@ import { Exercise } from '../../models/exercise.model';
 import { SaveWorkoutRequest, Workout, WorkoutExercise, WorkoutSet } from '../../models/workout.model';
 import { WorkoutService } from '../workout.service';
 import { ExerciseCatalogService } from '../exercise-catalog.service';
+import { ConfirmService } from '../../shared/confirm-dialog/confirm.service';
 import { apiErrorMessage } from '../../shared/http/api-error';
 
 // A card in the workout. The key tells two cards of the same exercise apart.
@@ -35,6 +36,7 @@ const pad = (n: number) => n.toString().padStart(2, '0');
   styleUrl: './current-workout.css',
 })
 export class CurrentWorkout {
+  private confirm = inject(ConfirmService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
@@ -87,8 +89,28 @@ export class CurrentWorkout {
     });
   }
 
-  clearWorkout() {
-    this.exerciseCards.set([]);
+  // Live: deletes the workout in progress; a plan it came from stays. Plan: leaves without saving.
+  async cancel() {
+    const live = this.mode === 'live';
+    const confirmed = await this.confirm.ask(live
+      ? { title: 'Cancel this workout?', message: 'It will be deleted and will not appear in your history.', confirmLabel: 'Delete workout', cancelLabel: 'Keep training' }
+      : { title: 'Leave without saving?', message: 'Changes since your last save will be lost.', confirmLabel: 'Leave' });
+    if (!confirmed) return;
+
+    const id = this.workoutId();
+    if (live && id !== null) {
+      this.busy.set(true);
+      try {
+        await this.workouts.delete(id);
+      } catch (error) {
+        this.showError(error);
+        return;
+      } finally {
+        this.busy.set(false);
+      }
+    }
+
+    await this.router.navigate(['/training'], { queryParams: { tab: live ? 'new' : 'planned' } });
   }
 
   deleteCard(key: number) {
@@ -105,7 +127,15 @@ export class CurrentWorkout {
 
   // Live: saves and completes the workout, then shows the history. Plan: saves it, then shows the plans.
   async done() {
-    if (!await this.save()) return;
+    if (this.mode === 'live' && this.exerciseCards().length === 0) {
+      this.snackBar.open('Add an exercise before finishing, or use X to cancel the workout.', 'OK', { duration: 5000 });
+      return;
+    }
+
+    const confirmed = await this.confirm.ask(this.mode === 'live'
+      ? { title: 'Finish this workout?', message: 'It will be saved and moved to your completed workouts.', confirmLabel: 'Finish' }
+      : { title: 'Save this plan and close?', confirmLabel: 'Save' });
+    if (!confirmed || !await this.save()) return;
 
     if (this.mode === 'live') {
       try {

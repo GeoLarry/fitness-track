@@ -1,6 +1,6 @@
 <mat-card class="exercise-card">
     <mat-card-header>
-        <mat-card-title>
+        <mat-card-title class="exercise-title" role="button" tabindex="0" (click)="showInfo()" (keydown.enter)="showInfo()">
             {{ exercise().name }}
         </mat-card-title>
 
@@ -30,65 +30,68 @@
         </div>
 
         <!-- TABLE -->
-        <table mat-table [dataSource]="rows()" class="exercise-table" cdkDropList
-            (cdkDropListDropped)="dropRow($event)">
+        <div class="exercise-table-clip">
+        <table mat-table [dataSource]="rows()" class="exercise-table">
 
             <!-- Counter / icon -->
             <ng-container matColumnDef="counter">
-                <td mat-cell *matCellDef="let row; let i = index" cdkDragHandle>
-                    <div class="swipe-container">
-                        @if (row.warmup) {
-                        <ng-container>
-                            <mat-icon color="accent">local_fire_department</mat-icon>
-                        </ng-container>
-                        }
-                        @else {
-                        <ng-container>{{ getSetNumber(i) }}</ng-container>
-                        }
-                    </div>
+                <td mat-cell *matCellDef="let row; let i = index">
+                    @if (row.warmup) {
+                    <mat-icon color="accent">local_fire_department</mat-icon>
+                    }
+                    @else {
+                    {{ getSetNumber(i) }}
+                    }
                 </td>
             </ng-container>
 
             <!-- Weight -->
             <ng-container matColumnDef="weight">
-                <td mat-cell *matCellDef="let row" cdkDragHandle>
-                    <div class="swipe-container">
-                        @if (!isEditing(row, 'weight')) {
-                        <div class="editable" role="button" tabindex="0" (click)="edit(row, 'weight')" (keydown.enter)="edit(row, 'weight')">
-                            {{ row.weight }} kg
-                        </div>
-                        } @else {
-                        <input type="number" inputmode="numeric" pattern="[0-9]*" class="edit-input"
-                            [(ngModel)]="row.weight" (blur)="stopEdit()"
-                            (keydown.enter)="stopEdit()" />
-                        }
+                <td mat-cell *matCellDef="let row">
+                    @if (!isEditing(row, 'weight')) {
+                    <div class="editable" role="button" tabindex="0" (click)="edit(row, 'weight')" (keydown.enter)="edit(row, 'weight')">
+                        {{ row.weight }} kg
                     </div>
+                    } @else {
+                    <input type="number" inputmode="numeric" pattern="[0-9]*" class="edit-input"
+                        [(ngModel)]="row.weight" (blur)="stopEdit()"
+                        (keydown.enter)="stopEdit()" />
+                    }
                 </td>
             </ng-container>
 
             <!-- Reps -->
             <ng-container matColumnDef="reps">
-                <td mat-cell *matCellDef="let row" cdkDragHandle>
-                    <div class="swipe-container">
-                        @if (!isEditing(row, 'reps')) {
-                        <div class="editable" role="button" tabindex="0" (click)="edit(row, 'reps')" (keydown.enter)="edit(row, 'reps')">
-                            {{ row.reps }} reps
-                        </div>
-                        } @else {
-                        <input type="number" inputmode="numeric" pattern="[0-9]*" class="edit-input"
-                            [(ngModel)]="row.reps" (blur)="stopEdit()"
-                            (keydown.enter)="stopEdit()" />
-                        }
+                <td mat-cell *matCellDef="let row">
+                    @if (!isEditing(row, 'reps')) {
+                    <div class="editable" role="button" tabindex="0" (click)="edit(row, 'reps')" (keydown.enter)="edit(row, 'reps')">
+                        {{ row.reps }} reps
                     </div>
+                    } @else {
+                    <input type="number" inputmode="numeric" pattern="[0-9]*" class="edit-input"
+                        [(ngModel)]="row.reps" (blur)="stopEdit()"
+                        (keydown.enter)="stopEdit()" />
+                    }
                 </td>
             </ng-container>
 
             <!-- Actions -->
             <ng-container matColumnDef="actions">
-                <td mat-cell *matCellDef="let row" cdkDragHandle>
-                    <button mat-icon-button [matMenuTriggerFor]="rowMenu" (click)="currentRow.set(row)">
-                        <mat-icon>more_vert</mat-icon>
-                    </button>
+                <td mat-cell *matCellDef="let row; let i = index">
+                    <div class="row-actions">
+                        <button mat-icon-button class="row-move" aria-label="Move up" [disabled]="!canMove(i, -1)" (click)="moveRow(i, -1)">
+                            <mat-icon>keyboard_arrow_up</mat-icon>
+                        </button>
+                        <button mat-icon-button class="row-move" aria-label="Move down" [disabled]="!canMove(i, 1)" (click)="moveRow(i, 1)">
+                            <mat-icon>keyboard_arrow_down</mat-icon>
+                        </button>
+                        <button mat-icon-button class="row-move" aria-label="Set options" [matMenuTriggerFor]="rowMenu" (click)="currentRow.set(row)">
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+                    </div>
+                    <div class="row-swipe-delete" aria-hidden="true">
+                        <mat-icon>delete</mat-icon>
+                    </div>
                 </td>
             </ng-container>
 
@@ -99,9 +102,10 @@
                 </button>
             </mat-menu>
 
-            <tr mat-row *matRowDef="let row; columns: displayedColumns" cdkDrag (cdkDragStarted)="onDragStart()">
-            </tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns" appSwipeActions #swipe="appSwipeActions"
+                (swipedLeft)="deleteRow(row, swipe)"></tr>
         </table>
+        </div>
 
         <!-- Add Set -->
         <div class="center-row">

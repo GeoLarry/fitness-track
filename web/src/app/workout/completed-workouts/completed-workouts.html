@@ -5,19 +5,35 @@
     <p class="workout-list-empty">Loading…</p>
     } @else {
     @for (workout of workouts.completed.value(); track workout.id) {
-    <div class="workout-item">
-        <div class="workout-item-text">
-            <div class="workout-item-title">
-                {{ workout.name || 'Workout' }} · {{ workout.completedAtUtc | date: 'EEE d MMM, HH:mm' }}
-            </div>
-            <div class="workout-item-meta">
-                {{ duration(workout.durationSeconds) }} · {{ workout.exerciseCount }} exercises · {{ workout.setCount }} sets
-                · {{ workout.volumeKg | number: '1.0-1' }} kg
-            </div>
-        </div>
-        <button mat-icon-button aria-label="Delete this workout" (click)="delete(workout.id)">
+    <div class="swipe-row">
+        <div class="swipe-row-action swipe-row-delete" aria-hidden="true">
             <mat-icon>delete</mat-icon>
-        </button>
+        </div>
+        <div class="workout-item" appSwipeActions #swipe="appSwipeActions" (swipedLeft)="delete(workout.id, swipe)">
+            <div class="workout-item-text workout-item-open" role="button" tabindex="0" (click)="openPreview(workout)"
+                (keydown.enter)="openPreview(workout)">
+                <div class="workout-item-title">
+                    {{ workout.name || 'Workout' }} · {{ workout.completedAtUtc | date: 'EEE d MMM, HH:mm' }}
+                </div>
+                <div class="workout-item-meta">
+                    {{ duration(workout.durationSeconds) }} · {{ workout.exerciseCount }} exercises · {{ workout.setCount }} sets
+                    · {{ workout.volumeKg | number: '1.0-1' }} kg
+                </div>
+            </div>
+            <button mat-icon-button aria-label="Workout options" [matMenuTriggerFor]="workoutMenu">
+                <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #workoutMenu="matMenu">
+                <button mat-menu-item (click)="openPreview(workout)">
+                    <mat-icon>visibility</mat-icon>
+                    Preview
+                </button>
+                <button mat-menu-item (click)="delete(workout.id)">
+                    <mat-icon>delete</mat-icon>
+                    Delete
+                </button>
+            </mat-menu>
+        </div>
     </div>
     } @empty {
     <p class="workout-list-empty">No completed workouts yet.</p>

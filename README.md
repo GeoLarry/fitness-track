@@ -10,8 +10,8 @@ A full-stack workout tracker: build a workout from an exercise catalog, log warm
 The Angular app in `web/` runs entirely on the .NET API in `api/`, built from my `dotnet-auth-starter` template.
 
 - Sign up with a username, log in with email or username, stay signed in across reloads; roles User, Coach and Administrator
-- Training page with tabs: Planned (start, edit or delete a plan), New (start a workout now or plan one) and Completed (history with duration, sets and volume)
-- Current workout: saved on the API at any time and resumed after a reload, elapsed time, a rest timer, one card per exercise with warm-ups and sets (weight, reps, drag to reorder); Done moves it to the history
+- Training page with tabs: Planned (swipe right to start, tap to edit, swipe left to delete), New (start a workout now or plan one) and Completed (history with duration, sets and volume; tap for a preview of every set, swipe left or use the ⋮ menu to delete)
+- Current workout: saved on the API at any time and resumed after a reload, elapsed time, a rest timer, one card per exercise (tap the name for its details) with warm-ups and sets (weight, reps, arrows to reorder, swipe left to delete); Done moves it to the history, X cancels and deletes it
 - Plans: a name and an optional day; starting one copies it into a new workout and the plan stays
 - Exercise picker over a catalog of 383 exercises, with search and exercise info (equipment, muscles, steps)
 - Custom exercises (muscles, equipment, numbered steps), visible only to the user who created them
