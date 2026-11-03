@@ -110,7 +110,7 @@ export class CurrentWorkout {
       }
     }
 
-    await this.router.navigate(['/training'], { queryParams: { tab: live ? 'new' : 'planned' } });
+    await this.router.navigate(['/training']);
   }
 
   deleteCard(key: number) {
@@ -149,7 +149,7 @@ export class CurrentWorkout {
       }
     }
 
-    await this.router.navigate(['/training'], { queryParams: { tab: this.mode === 'live' ? 'completed' : 'planned' } });
+    await this.router.navigate([this.mode === 'live' ? '/history' : '/training']);
   }
 
   private async load(planId: number | null) {

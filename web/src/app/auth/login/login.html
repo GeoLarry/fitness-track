@@ -1,4 +1,5 @@
-<section>
+<section class="auth-page">
+    <h1 class="page-title">Fitness Track</h1>
     <form #LoginForm="ngForm" (ngSubmit)="onSubmit(LoginForm)">
         <!-- Email or username -->
         <mat-form-field hintLabel="The email or username you signed up with">
@@ -21,4 +22,5 @@
             }
         </button>
     </form>
+    <p class="auth-switch">New here? <a routerLink="/signup">Sign up</a></p>
 </section>

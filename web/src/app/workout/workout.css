@@ -1,0 +1,27 @@
+.training {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px 16px;
+}
+
+.training-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+}
+
+.training-plans-title {
+    margin: 0;
+    font-family: var(--ft-font-numbers);
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+}
+
+@media screen and (min-width: 960px) {
+    .training-columns {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+    }
+}

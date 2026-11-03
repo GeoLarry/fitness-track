@@ -1,4 +1,5 @@
-<section>
+<section class="auth-page">
+    <h1 class="page-title">Fitness Track</h1>
     <form #SignUpForm="ngForm" (ngSubmit)="onSubmit(SignUpForm)">
         <!-- Username -->
         <mat-form-field hintLabel="3-50 letters, digits, dot, dash or underscore">
@@ -35,4 +36,5 @@
         }
         <button type="submit" mat-raised-button color="primary" [disabled]="SignUpForm.invalid || isLoading()">Submit</button>
     </form>
+    <p class="auth-switch">Already have an account? <a routerLink="/login">Login</a></p>
 </section>

@@ -1,0 +1,4 @@
+.with-nav {
+    padding-bottom: var(--ft-nav-bottom);
+    padding-left: var(--ft-nav-left);
+}

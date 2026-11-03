@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -10,7 +10,7 @@ import { apiErrorMessage } from '../../shared/http/api-error';
 
 @Component({
   selector: 'app-signup',
-  imports: [MatFormFieldModule, MatInputModule, MatCheckboxModule, MatButtonModule, FormsModule],
+  imports: [MatFormFieldModule, MatInputModule, MatCheckboxModule, MatButtonModule, FormsModule, RouterLink],
   templateUrl: './signup.html',
   styleUrl: './signup.css',
 })

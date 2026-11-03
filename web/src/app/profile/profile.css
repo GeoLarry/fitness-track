@@ -1,0 +1,27 @@
+.profile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    max-width: 478px;
+    padding: 24px 16px;
+}
+
+dl {
+    width: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+dt {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 14px;
+}
+
+dd {
+    margin: 0;
+    font-size: 16px;
+    overflow-wrap: anywhere;
+}
