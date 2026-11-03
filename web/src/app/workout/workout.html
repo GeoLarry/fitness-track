@@ -1,11 +1,10 @@
-<mat-tab-group [selectedIndex]="selectedTabIndex">
-    <mat-tab label="Planned Workouts">
-        <app-planned-workouts></app-planned-workouts>
-    </mat-tab>
-    <mat-tab label="New Workout">
+<section class="training">
+    <h1 class="page-title">Training</h1>
+    <div class="training-columns">
         <app-new-workout></app-new-workout>
-    </mat-tab>
-    <mat-tab label="Completed Workouts">
-        <app-completed-workouts></app-completed-workouts>
-    </mat-tab>
-</mat-tab-group>
+        <div>
+            <h2 class="training-plans-title">Plans</h2>
+            <app-planned-workouts></app-planned-workouts>
+        </div>
+    </div>
+</section>

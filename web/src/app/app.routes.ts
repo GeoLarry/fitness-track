@@ -7,8 +7,8 @@ import { Signup } from './auth/signup/signup';
 import { Login } from './auth/login/login';
 import { Workout } from './workout/workout';
 import { CurrentWorkout } from './workout/current-workout/current-workout';
-import { PlannedWorkouts } from './workout/planned-workouts/planned-workouts';
 import { CompletedWorkouts } from './workout/completed-workouts/completed-workouts';
+import { Profile } from './profile/profile';
 
 export const routes: Routes = [
     { path: '', component: Welcome, canActivate: [authGuard] },
@@ -16,7 +16,7 @@ export const routes: Routes = [
     { path: 'login', component: Login, canActivate: [guestGuard] },
     { path: 'training', component: Workout, canActivate: [authGuard] },
     { path: 'current-workout', component: CurrentWorkout, canActivate: [authGuard] },
-    { path: 'planned-workout', component: PlannedWorkouts, canActivate: [authGuard] },
-    { path: 'completed-workout', component: CompletedWorkouts, canActivate: [authGuard] },
+    { path: 'history', component: CompletedWorkouts, canActivate: [authGuard] },
+    { path: 'profile', component: Profile, canActivate: [authGuard] },
     { path: '**', redirectTo: '' }
 ];

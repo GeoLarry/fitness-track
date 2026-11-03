@@ -1,13 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { Header } from "./navigation/header/header";
-import { SidenavList } from "./navigation/sidenav-list/sidenav-list";
+import { MainNav } from './navigation/main-nav/main-nav';
+import { AuthService } from './shared/services/auth.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MatSidenavModule, Header, SidenavList],
+  imports: [RouterOutlet, MainNav],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {}
+export class App {
+  readonly isAuth = inject(AuthService).isAuthenticated;
+}

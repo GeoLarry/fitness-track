@@ -7,23 +7,14 @@ body {
 
 body {
     margin: 0;
-    font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-mat-sidenav-container,
-mat-sidenav-content,
-mat-sidenav {
-    height: 100%;
-}
-
-mat-sidenav {
-    width: 250px;
-}
-
-.toolbar-links {
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
+.page-title {
+    margin: 0;
+    font-family: var(--ft-font-numbers);
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.1;
 }
 
 .full-screen-dialog .mat-mdc-dialog-container {
@@ -59,17 +50,4 @@ mat-sidenav {
 }
 .mat-mdc-raised-button .mat-mdc-button-touch-target {
     height: 72px;
-}
-
-
-@media screen and (min-width: 599px) {
-    .menu-icon {
-        display: none;
-    }
-}
-
-@media screen and (max-width: 598px) {
-    .toolbar-links {
-        display: none;
-    }
 }

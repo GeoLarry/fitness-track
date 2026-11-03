@@ -1,0 +1,9 @@
+<nav aria-label="Main">
+    <div class="wordmark">Fitness Track</div>
+    @for (link of links(); track link.url) {
+    <a class="nav-link" [routerLink]="link.url" [class.active]="link.active" [attr.aria-current]="link.active ? 'page' : null">
+        <mat-icon aria-hidden="true">{{ link.icon }}</mat-icon>
+        <span>{{ link.label }}</span>
+    </a>
+    }
+</nav>

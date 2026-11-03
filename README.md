@@ -67,7 +67,8 @@ The API has no migrations yet: after pulling changes to its data model, delete `
 - [x] The web app reads the catalog from the API; Firebase removed
 - [x] Save a workout on the API: plans, one workout in progress, completed history; exercises, warm-ups and sets; start a workout from a plan (the plan stays); demo workouts in the seed
 - [x] The web app uses the workouts API (current UI): live workout resumed after a reload, Save and Done, plans to start or edit, history; dates come back from the API as UTC
-- [ ] Redesign of the web app (to be agreed first)
+- [x] Redesign, step 1: dark athletic theme, bottom bar on phones and side column on computers instead of the side menu and tabs, History and Profile pages
+- [ ] Redesign, next steps: live workout, History with a weekly summary, Training and dialogs, Home
 - [ ] Workout screens in the new design, on the workouts API: Training → new workout (live, saved at any time, Done moves it to Completed) or plan (saved for later in Planned)
 - [ ] Better adding of exercises, sets, warm-ups and custom exercises
 - [ ] Admin: user management screen, roles Admin / User / Coach in the web app

@@ -86,7 +86,7 @@ describe('CurrentWorkout', () => {
       }],
     }));
     expect(workouts.complete).toHaveBeenCalledWith(5);
-    expect(navigate).toHaveBeenCalledWith(['/training'], { queryParams: { tab: 'completed' } });
+    expect(navigate).toHaveBeenCalledWith(['/history']);
   });
 
   it('does not finish a workout without exercises and says why', async () => {
@@ -124,7 +124,7 @@ describe('CurrentWorkout', () => {
 
     expect(workouts.delete).toHaveBeenCalledWith(5);
     expect(workouts.complete).not.toHaveBeenCalled();
-    expect(navigate).toHaveBeenCalledWith(['/training'], { queryParams: { tab: 'new' } });
+    expect(navigate).toHaveBeenCalledWith(['/training']);
   });
 
   it('keeps the workout when the user says no to cancelling', async () => {
@@ -158,7 +158,7 @@ describe('CurrentWorkout', () => {
 
     expect(workouts.delete).not.toHaveBeenCalled();
     expect(workouts.save).not.toHaveBeenCalled();
-    expect(navigate).toHaveBeenCalledWith(['/training'], { queryParams: { tab: 'planned' } });
+    expect(navigate).toHaveBeenCalledWith(['/training']);
   });
 
   it('stays on the page when saving fails', async () => {
@@ -188,7 +188,7 @@ describe('CurrentWorkout', () => {
     }));
     expect(workouts.save).toHaveBeenCalledWith(8, expect.objectContaining({ name: 'Leg day' }));
     expect(workouts.complete).not.toHaveBeenCalled();
-    expect(navigate).toHaveBeenCalledWith(['/training'], { queryParams: { tab: 'planned' } });
+    expect(navigate).toHaveBeenCalledWith(['/training']);
   });
 
   it('opens a plan for editing', async () => {

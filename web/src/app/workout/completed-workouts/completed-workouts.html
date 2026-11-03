@@ -1,4 +1,5 @@
 <section class="workout-list">
+    <h1 class="page-title workout-list-title">History</h1>
     @if (workouts.completed.error()) {
     <p class="workout-list-empty">Could not load your workouts.</p>
     } @else if (workouts.completed.isLoading() && workouts.completed.value().length === 0) {

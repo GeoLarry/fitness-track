@@ -1,0 +1,24 @@
+<section class="profile">
+    <h1 class="page-title">Profile</h1>
+    @if (user(); as user) {
+    <dl>
+        <div>
+            <dt>Name</dt>
+            <dd>{{ name() }}</dd>
+        </div>
+        <div>
+            <dt>Username</dt>
+            <dd>{{ user.username }}</dd>
+        </div>
+        <div>
+            <dt>Email</dt>
+            <dd>{{ user.email }}</dd>
+        </div>
+        <div>
+            <dt>Roles</dt>
+            <dd>{{ roles() }}</dd>
+        </div>
+    </dl>
+    }
+    <button matButton="outlined" (click)="logout()">Logout</button>
+</section>

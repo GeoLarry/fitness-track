@@ -6,6 +6,7 @@
 
 .new-workout-card {
     width: 478px;
+    max-width: 100%;
 }
 
 mat-card-header {
