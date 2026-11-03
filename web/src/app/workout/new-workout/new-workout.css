@@ -1,39 +1,13 @@
-.new-workout-container {
+.new-workout {
     display: flex;
-    justify-content: center;
-    padding: 30px;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 478px;
+    margin: auto;
 }
 
-.new-workout-card {
-    width: 478px;
-    max-width: 100%;
-}
-
-mat-card-header {
-    display: flex;
-    justify-content: center;
-    padding-bottom: 30px;
-}
-
-mat-card-content {
-    display: flex;
-    justify-content: center;
-}
-
-mat-card-actions {
-    display: flex;
-    justify-content: center;
-}
-
-@media screen and (max-width: 478px) {
-    form {
-        width: 100%
-    }
-    .new-workout-container {
-    padding: 0px;
-    width: 100%;
-}
-    .new-workout-card {
-        width: 100%;
-    }
+.new-workout-action {
+    height: 56px;
+    border-radius: 8px;
+    font-size: 16px;
 }
