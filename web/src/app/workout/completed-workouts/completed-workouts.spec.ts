@@ -3,10 +3,16 @@ import { signal } from '@angular/core';
 import { CompletedWorkouts } from './completed-workouts';
 import { WorkoutService } from '../workout.service';
 import { WorkoutSummary } from '../../models/workout.model';
+import { ConfirmService } from '../../shared/confirm-dialog/confirm.service';
+import { MatDialog } from '@angular/material/dialog';
+import { WorkoutPreview } from './workout-preview/workout-preview';
+import { SwipeActions } from '../../shared/swipe-actions/swipe-actions';
 
 describe('CompletedWorkouts', () => {
   let fixture: ComponentFixture<CompletedWorkouts>;
   let component: CompletedWorkouts;
+  let ask: ReturnType<typeof vi.fn>;
+  let deleteWorkout: ReturnType<typeof vi.fn>;
 
   const done = (id: number, name: string | null): WorkoutSummary => ({
     id, name, status: 'Completed', plannedForUtc: null, startedAtUtc: '2026-10-25T17:00:00Z',
@@ -15,9 +21,14 @@ describe('CompletedWorkouts', () => {
 
   async function setUp(workouts: WorkoutSummary[]) {
     const completed = { value: signal(workouts), error: signal(undefined), isLoading: signal(false) };
+    ask = vi.fn().mockResolvedValue(true);
+    deleteWorkout = vi.fn().mockResolvedValue(undefined);
     await TestBed.configureTestingModule({
       imports: [CompletedWorkouts],
-      providers: [{ provide: WorkoutService, useValue: { completed } }],
+      providers: [
+        { provide: WorkoutService, useValue: { completed, delete: deleteWorkout } },
+        { provide: ConfirmService, useValue: { ask } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CompletedWorkouts);
@@ -33,6 +44,44 @@ describe('CompletedWorkouts', () => {
     expect(text).toContain('1 h 05 min');
     expect(text).toContain('9 sets');
     expect(text).toContain('5,312.5 kg');
+  });
+
+  it('opens the preview when a workout is tapped', async () => {
+    await setUp([done(1, 'Leg day')]);
+    const open = vi.spyOn(TestBed.inject(MatDialog), 'open').mockReturnValue(undefined as never);
+
+    fixture.nativeElement.querySelector('.workout-item-open').click();
+
+    expect(open).toHaveBeenCalledWith(WorkoutPreview, expect.objectContaining({ data: expect.objectContaining({ id: 1 }) }));
+  });
+
+  it('deletes a workout only when confirmed', async () => {
+    await setUp([done(1, 'Leg day')]);
+
+    ask.mockResolvedValue(false);
+    await component.delete(1);
+    expect(deleteWorkout).not.toHaveBeenCalled();
+
+    ask.mockResolvedValue(true);
+    await component.delete(1);
+    expect(deleteWorkout).toHaveBeenCalledWith(1);
+  });
+
+  it('puts a swiped card back unless the workout was deleted', async () => {
+    await setUp([done(1, 'Leg day')]);
+    const swipe = { reset: vi.fn() } as unknown as SwipeActions;
+
+    ask.mockResolvedValue(false);
+    await component.delete(1, swipe);
+    expect(swipe.reset).toHaveBeenCalledOnce();
+
+    ask.mockResolvedValue(true);
+    await component.delete(1, swipe);
+    expect(swipe.reset).toHaveBeenCalledOnce();
+
+    deleteWorkout.mockRejectedValue(new Error('offline'));
+    await component.delete(1, swipe);
+    expect(swipe.reset).toHaveBeenCalledTimes(2);
   });
 
   it('says when nothing is completed yet', async () => {

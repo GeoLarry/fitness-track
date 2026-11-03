@@ -1,15 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { CurrentWorkout } from './current-workout';
 import { WorkoutService } from '../workout.service';
 import { ExerciseCatalogService } from '../exercise-catalog.service';
+import { ConfirmService } from '../../shared/confirm-dialog/confirm.service';
 import { MockOf } from '../../shared/testing/mock-of';
 import { Workout } from '../../models/workout.model';
 
 describe('CurrentWorkout', () => {
   let fixture: ComponentFixture<CurrentWorkout>;
   let component: CurrentWorkout;
-  let workouts: MockOf<WorkoutService, 'getCurrent' | 'get' | 'create' | 'save' | 'complete'>;
+  let workouts: MockOf<WorkoutService, 'getCurrent' | 'get' | 'create' | 'save' | 'complete' | 'delete'>;
+  let ask: ReturnType<typeof vi.fn>;
   let navigate: ReturnType<typeof vi.spyOn>;
 
   const workout = (overrides: Partial<Workout>): Workout => ({
@@ -28,6 +31,7 @@ describe('CurrentWorkout', () => {
       providers: [
         provideRouter([]),
         { provide: WorkoutService, useValue: workouts },
+        { provide: ConfirmService, useValue: { ask } },
         { provide: ExerciseCatalogService, useValue: { exercises: { value: () => [] } } },
         { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap(params) } } },
       ],
@@ -40,7 +44,8 @@ describe('CurrentWorkout', () => {
   }
 
   beforeEach(() => {
-    workouts = { getCurrent: vi.fn(), get: vi.fn(), create: vi.fn(), save: vi.fn(), complete: vi.fn() };
+    workouts = { getCurrent: vi.fn(), get: vi.fn(), create: vi.fn(), save: vi.fn(), complete: vi.fn(), delete: vi.fn() };
+    ask = vi.fn().mockResolvedValue(true);
   });
 
   it('resumes the workout in progress with its sets', async () => {
@@ -84,8 +89,80 @@ describe('CurrentWorkout', () => {
     expect(navigate).toHaveBeenCalledWith(['/training'], { queryParams: { tab: 'completed' } });
   });
 
-  it('stays on the page when saving fails', async () => {
+  it('does not finish a workout without exercises and says why', async () => {
     workouts.getCurrent.mockResolvedValue(workout({}));
+    await setUp({ mode: 'start-workout' });
+    const snackBar = vi.spyOn(TestBed.inject(MatSnackBar), 'open');
+
+    await component.done();
+
+    expect(snackBar).toHaveBeenCalledWith(expect.stringContaining('Add an exercise'), 'OK', expect.anything());
+    expect(ask).not.toHaveBeenCalled();
+    expect(workouts.save).not.toHaveBeenCalled();
+    expect(workouts.complete).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('does nothing on Done when the user says no', async () => {
+    workouts.getCurrent.mockResolvedValue(workout({ exercises: [benchPress] }));
+    await setUp({ mode: 'start-workout' });
+    ask.mockResolvedValue(false);
+
+    await component.done();
+
+    expect(workouts.save).not.toHaveBeenCalled();
+    expect(workouts.complete).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('deletes the workout in progress and leaves on cancel', async () => {
+    workouts.getCurrent.mockResolvedValue(workout({ exercises: [benchPress] }));
+    workouts.delete.mockResolvedValue();
+    await setUp({ mode: 'start-workout' });
+
+    await component.cancel();
+
+    expect(workouts.delete).toHaveBeenCalledWith(5);
+    expect(workouts.complete).not.toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalledWith(['/training'], { queryParams: { tab: 'new' } });
+  });
+
+  it('keeps the workout when the user says no to cancelling', async () => {
+    workouts.getCurrent.mockResolvedValue(workout({ exercises: [benchPress] }));
+    await setUp({ mode: 'start-workout' });
+    ask.mockResolvedValue(false);
+
+    await component.cancel();
+
+    expect(workouts.delete).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+    expect(component.exerciseCards().length).toBe(1);
+  });
+
+  it('stays on the page when cancelling fails', async () => {
+    workouts.getCurrent.mockResolvedValue(workout({}));
+    workouts.delete.mockRejectedValue(new Error('offline'));
+    await setUp({ mode: 'start-workout' });
+
+    await component.cancel();
+
+    expect(navigate).not.toHaveBeenCalled();
+    expect(component.busy()).toBe(false);
+  });
+
+  it('leaves a plan without deleting or saving it on cancel', async () => {
+    workouts.get.mockResolvedValue(workout({ id: 3, status: 'Planned', startedAtUtc: null }));
+    await setUp({ plan: '3' });
+
+    await component.cancel();
+
+    expect(workouts.delete).not.toHaveBeenCalled();
+    expect(workouts.save).not.toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalledWith(['/training'], { queryParams: { tab: 'planned' } });
+  });
+
+  it('stays on the page when saving fails', async () => {
+    workouts.getCurrent.mockResolvedValue(workout({ exercises: [benchPress] }));
     workouts.save.mockRejectedValue(new Error('offline'));
     await setUp({ mode: 'start-workout' });
 

@@ -1,7 +1,8 @@
 <section class="current-workout-container">
     <div class="cw-header">
         <div class="cw-controls">
-            <button mat-fab class="cw-clear-btn" aria-label="Clear the workout" (click)="clearWorkout()">
+            <button mat-fab class="cw-clear-btn" [attr.aria-label]="mode === 'live' ? 'Cancel the workout' : 'Leave the plan without saving'"
+                [disabled]="loading() || busy()" (click)="cancel()">
                 <mat-icon>clear</mat-icon>
             </button>
 
