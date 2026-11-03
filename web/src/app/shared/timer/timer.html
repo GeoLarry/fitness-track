@@ -7,6 +7,7 @@
 
   <!-- CENTER: Time -->
   @if (!editing()) {
+  <span class="timer-label">Rest</span>
   <div class="time-display" role="button" tabindex="0" (click)="enableEdit()" (keydown.enter)="enableEdit()">
     {{ format(remaining()) }}
   </div>

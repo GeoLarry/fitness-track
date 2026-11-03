@@ -1,5 +1,5 @@
-<section class="current-workout-container">
-    <div class="cw-header">
+<section class="cw">
+    <div class="cw-side">
         <div class="cw-controls">
             <button mat-fab class="cw-clear-btn" [attr.aria-label]="mode === 'live' ? 'Cancel the workout' : 'Leave the plan without saving'"
                 [disabled]="loading() || busy()" (click)="cancel()">
@@ -33,21 +33,22 @@
             </mat-form-field>
         </div>
         } @else if (name()) {
-        <h2 class="cw-title">{{ name() }}</h2>
+        <h1 class="cw-title">{{ name() }}</h1>
         }
 
-        <div class="exercise-btn">
-            <button mat-raised-button class="cw-add-ex" [disabled]="loading()" (click)="openExercisesPopup()">
-                <mat-icon>add</mat-icon>
-                <span>Exercise</span>
-            </button>
-        </div>
+        @if (mode === 'live') {
+        <app-timer></app-timer>
+        }
     </div>
-    @for (card of exerciseCards(); track card.key) {
-    <app-exercise-card [exercise]="card.exercise" [rows]="card.rows" (rowsChange)="updateRows(card.key, $event)"
-        (remove)="deleteCard(card.key)"></app-exercise-card>
-    }
-    @if (mode === 'live') {
-    <app-timer></app-timer>
-    }
+
+    <div class="cw-exercises">
+        @for (card of exerciseCards(); track card.key) {
+        <app-exercise-card [exercise]="card.exercise" [rows]="card.rows" (rowsChange)="updateRows(card.key, $event)"
+            (remove)="deleteCard(card.key)"></app-exercise-card>
+        }
+        <button matButton="outlined" class="cw-add-ex" [disabled]="loading()" (click)="openExercisesPopup()">
+            <mat-icon>add</mat-icon>
+            <span>Add exercise</span>
+        </button>
+    </div>
 </section>
