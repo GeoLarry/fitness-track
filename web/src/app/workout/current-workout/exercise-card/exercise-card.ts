@@ -85,9 +85,13 @@ export class ExerciseCard {
   }
 
   // Weight and reps are edited on the row itself; a new array tells the workout they changed.
+  setValue(row: ExerciseRow, field: EditableField, value: number) {
+    row[field] = value;
+    this.rows.update(rows => [...rows]);
+  }
+
   stopEdit() {
     this.editing.set(null);
-    this.rows.update(rows => [...rows]);
   }
 
   async clearCard() {

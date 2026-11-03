@@ -21,6 +21,16 @@
             </div>
         </div>
 
+        @if (mode === 'live') {
+        <div class="cw-save-state" [class.cw-save-failed]="saveState() === 'failed'" aria-live="polite">
+            @switch (saveState()) {
+            @case ('saving') { Saving… }
+            @case ('failed') { Not saved, retrying }
+            @default { Saved }
+            }
+        </div>
+        }
+
         @if (mode === 'plan') {
         <div class="cw-plan-fields">
             <mat-form-field>

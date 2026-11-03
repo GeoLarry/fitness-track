@@ -216,8 +216,7 @@ describe('ExerciseCard', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('70 kg');
 
-    component.rows()[0].reps = 10;
-    component.stopEdit();
+    component.setValue(component.rows()[0], 'reps', 10);
 
     expect(changes.at(-1)).toEqual([{ warmup: false, weight: 70, reps: 10 }]);
   });

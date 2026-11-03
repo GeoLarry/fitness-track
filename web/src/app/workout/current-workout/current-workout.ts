@@ -1,4 +1,4 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -29,6 +29,10 @@ type Mode = 'live' | 'plan';
 
 const pad = (n: number) => n.toString().padStart(2, '0');
 
+// A live workout saves itself this long after the last change, and retries this long after a failure.
+const autosaveDelay = 1000;
+const autosaveRetryDelay = 10000;
+
 @Component({
   selector: 'app-current-workout',
   imports: [MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, FormsModule, Timer, ExerciseCard],
@@ -56,9 +60,17 @@ export class CurrentWorkout {
   private readonly now = signal(Date.now());
   private nextKey = 0;
 
-  // What the last save or load held, to notice changes that would be lost on leaving.
+  // Live: what the autosave is doing, shown under the time.
+  readonly saveState = signal<'saved' | 'saving' | 'failed'>('saved');
+
+  // What the last save or load held, to notice changes that still need saving.
   private savedRequest = '';
-  private discarded = false;
+  // Set once the workout is finished or deleted: nothing may save over it, and leaving asks nothing.
+  private closed = false;
+  // One save at a time: each waits for the one before it and then sends the latest state.
+  private saveQueue: Promise<unknown> = Promise.resolve();
+  private autosaveTimer?: ReturnType<typeof setTimeout>;
+  private saveError: unknown = null;
 
   // Time since the workout started: m:ss, with the hours in front once it passes an hour.
   readonly elapsed = computed(() => {
@@ -77,6 +89,8 @@ export class CurrentWorkout {
 
     const clock = setInterval(() => this.now.set(Date.now()), 1000);
     inject(DestroyRef).onDestroy(() => clearInterval(clock));
+
+    if (this.mode === 'live') this.startAutosave();
 
     void this.load(planId);
   }
@@ -103,12 +117,17 @@ export class CurrentWorkout {
       : { title: 'Leave without saving?', message: 'Changes since your last save will be lost.', confirmLabel: 'Leave' });
     if (!confirmed) return;
 
+    this.closed = true;
+    clearTimeout(this.autosaveTimer);
     const id = this.workoutId();
     if (live && id !== null) {
       this.busy.set(true);
       try {
+        await this.saveQueue;
         await this.workouts.delete(id);
       } catch (error) {
+        this.closed = false;
+        this.autosaveIfChanged();
         this.showError(error);
         return;
       } finally {
@@ -116,13 +135,24 @@ export class CurrentWorkout {
       }
     }
 
-    this.discarded = true;
     await this.router.navigate(['/training']);
   }
 
-  // Asked by the route guard. Cancelling asks by itself, and a save leaves nothing to lose.
+  // Asked by the route guard. A live workout saves what is left, and one without exercises goes away.
   async canLeave(): Promise<boolean> {
-    if (this.discarded || JSON.stringify(this.request()) === this.savedRequest) return true;
+    if (this.closed) return true;
+
+    if (this.mode === 'live') {
+      if (this.exerciseCards().length === 0) {
+        await this.deleteEmptyWorkout();
+        return true;
+      }
+      clearTimeout(this.autosaveTimer);
+      if (await this.save()) return true;
+    } else if (!this.hasChanges()) {
+      return true;
+    }
+
     return this.confirm.ask({ title: 'Leave without saving?', message: 'Changes since your last save will be lost.', confirmLabel: 'Leave' });
   }
 
@@ -135,7 +165,7 @@ export class CurrentWorkout {
   }
 
   async onSave() {
-    if (await this.save()) this.snackBar.open('Saved', undefined, { duration: 2000 });
+    if (await this.saveNow()) this.snackBar.open('Saved', undefined, { duration: 2000 });
   }
 
   // Live: saves and completes the workout, then shows the history. Plan: saves it, then shows the plans.
@@ -148,13 +178,18 @@ export class CurrentWorkout {
     const confirmed = await this.confirm.ask(this.mode === 'live'
       ? { title: 'Finish this workout?', message: 'It will be saved and moved to your completed workouts.', confirmLabel: 'Finish' }
       : { title: 'Save this plan and close?', confirmLabel: 'Save' });
-    if (!confirmed || !await this.save()) return;
+    if (!confirmed || !await this.saveNow()) return;
 
+    this.closed = true;
+    clearTimeout(this.autosaveTimer);
     if (this.mode === 'live') {
       try {
         this.busy.set(true);
+        await this.saveQueue;
         await this.workouts.complete(this.workoutId()!);
       } catch (error) {
+        this.closed = false;
+        this.autosaveIfChanged();
         this.showError(error);
         return;
       } finally {
@@ -202,12 +237,68 @@ export class CurrentWorkout {
     };
   }
 
-  // A new plan is created on its first save; everything else is updated in place.
-  private async save(): Promise<boolean> {
-    const request = this.request();
+  // Saves on every change, and straight away when the page goes to the background or is closed.
+  private startAutosave() {
+    effect(() => {
+      if (!this.loading()) this.autosaveIfChanged();
+    });
+
+    const saveWhenHidden = () => {
+      if (document.visibilityState === 'hidden') this.saveChangesNow();
+    };
+    const saveChanges = () => this.saveChangesNow();
+    document.addEventListener('visibilitychange', saveWhenHidden);
+    window.addEventListener('pagehide', saveChanges);
+    inject(DestroyRef).onDestroy(() => {
+      clearTimeout(this.autosaveTimer);
+      document.removeEventListener('visibilitychange', saveWhenHidden);
+      window.removeEventListener('pagehide', saveChanges);
+    });
+  }
+
+  private autosaveIfChanged() {
+    if (this.closed || !this.hasChanges()) return;
+    this.saveState.set('saving');
+    clearTimeout(this.autosaveTimer);
+    this.autosaveTimer = setTimeout(() => this.saveChangesNow(), autosaveDelay);
+  }
+
+  private saveChangesNow() {
+    clearTimeout(this.autosaveTimer);
+    void this.save();
+  }
+
+  private hasChanges(): boolean {
+    return JSON.stringify(this.request()) !== this.savedRequest;
+  }
+
+  // What the save button and Done do: always writes, and says so when it fails.
+  private async saveNow(): Promise<boolean> {
+    clearTimeout(this.autosaveTimer);
     this.busy.set(true);
+    const saved = await this.save(true);
+    this.busy.set(false);
+    if (!saved) this.showError(this.saveError);
+    return saved;
+  }
+
+  private save(always = false): Promise<boolean> {
+    const saved = this.saveQueue.then(() => this.write(always));
+    this.saveQueue = saved;
+    return saved;
+  }
+
+  // Sends the state as it is now. A new plan is created on its first save; everything else is updated in place.
+  private async write(always: boolean): Promise<boolean> {
+    if (this.closed || (!always && !this.hasChanges())) return true;
+
+    const id = this.workoutId();
+    // A live workout that could not load has nothing to save into yet.
+    if (id === null && this.mode === 'live' && !always) return false;
+
+    const request = this.request();
+    this.saveState.set('saving');
     try {
-      const id = this.workoutId();
       if (id === null) {
         const created = await this.workouts.create({ status: 'Planned', ...request });
         this.workoutId.set(created.id);
@@ -215,12 +306,30 @@ export class CurrentWorkout {
         await this.workouts.save(id, request);
       }
       this.savedRequest = JSON.stringify(request);
+      this.saveState.set(this.hasChanges() ? 'saving' : 'saved');
       return true;
     } catch (error) {
-      this.showError(error);
+      this.saveError = error;
+      this.saveState.set('failed');
+      if (this.mode === 'live' && !this.closed) {
+        clearTimeout(this.autosaveTimer);
+        this.autosaveTimer = setTimeout(() => this.saveChangesNow(), autosaveRetryDelay);
+      }
       return false;
-    } finally {
-      this.busy.set(false);
+    }
+  }
+
+  // Best effort: the user is leaving anyway, and an empty workout can still be resumed or cancelled later.
+  private async deleteEmptyWorkout() {
+    this.closed = true;
+    clearTimeout(this.autosaveTimer);
+    const id = this.workoutId();
+    if (id === null) return;
+    try {
+      await this.saveQueue;
+      await this.workouts.delete(id);
+    } catch {
+      // Nothing to lose.
     }
   }
 
