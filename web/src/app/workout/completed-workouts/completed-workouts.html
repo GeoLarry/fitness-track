@@ -1,43 +1,93 @@
-<section class="workout-list">
-    <h1 class="page-title workout-list-title">History</h1>
-    @if (workouts.completed.error()) {
-    <p class="workout-list-empty">Could not load your workouts.</p>
-    } @else if (workouts.completed.isLoading() && workouts.completed.value().length === 0) {
-    <p class="workout-list-empty">Loading…</p>
-    } @else {
-    @for (workout of workouts.completed.value(); track workout.id) {
-    <div class="swipe-row">
-        <div class="swipe-row-action swipe-row-delete" aria-hidden="true">
-            <mat-icon>delete</mat-icon>
-        </div>
-        <div class="workout-item" appSwipeActions #swipe="appSwipeActions" (swipedLeft)="delete(workout.id, swipe)">
-            <div class="workout-item-text workout-item-open" role="button" tabindex="0" (click)="openPreview(workout)"
-                (keydown.enter)="openPreview(workout)">
-                <div class="workout-item-title">
-                    {{ workout.name || 'Workout' }} · {{ workout.completedAtUtc | date: 'EEE d MMM, HH:mm' }}
-                </div>
-                <div class="workout-item-meta">
-                    {{ duration(workout.durationSeconds) }} · {{ workout.exerciseCount }} exercises · {{ workout.setCount }} sets
-                    · {{ workout.volumeKg | number: '1.0-1' }} kg
-                </div>
+<section class="history">
+    <h1 class="page-title history-title">History</h1>
+
+    @if (summary(); as summary) {
+    <aside class="summary" aria-label="Last 7 days">
+        <div class="summary-label">Last 7 days</div>
+        <div class="summary-volume">{{ summary.volumeKg | number: '1.0-1' }} <span class="summary-volume-unit">kg</span></div>
+        <div class="summary-totals">
+            <div>
+                <div class="summary-value">{{ duration(summary.durationSeconds) }}</div>
+                <div class="summary-name">Time</div>
             </div>
-            <button mat-icon-button aria-label="Workout options" [matMenuTriggerFor]="workoutMenu">
-                <mat-icon>more_vert</mat-icon>
-            </button>
-            <mat-menu #workoutMenu="matMenu">
-                <button mat-menu-item (click)="openPreview(workout)">
-                    <mat-icon>visibility</mat-icon>
-                    Preview
-                </button>
-                <button mat-menu-item (click)="delete(workout.id)">
-                    <mat-icon>delete</mat-icon>
-                    Delete
-                </button>
-            </mat-menu>
+            <div>
+                <div class="summary-value">{{ summary.setCount }}</div>
+                <div class="summary-name">Sets</div>
+            </div>
+            <div>
+                <div class="summary-value">{{ summary.workoutCount }}</div>
+                <div class="summary-name">Workouts</div>
+            </div>
         </div>
+
+        @if (summary.muscles.length > 0) {
+        <table class="summary-muscles">
+            <thead>
+                <tr>
+                    <th scope="col">Muscle</th>
+                    <th scope="col">Sets</th>
+                    <th scope="col">Kg</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (muscle of summary.muscles; track muscle.muscleId) {
+                <tr [class.muscle-hidden]="$index >= musclesOnPhone && !allMuscles()">
+                    <td>{{ muscle.name }}</td>
+                    <td>{{ muscle.setCount }}</td>
+                    <td>{{ muscle.volumeKg | number: '1.0-1' }}</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+        }
+        @if (summary.muscles.length > musclesOnPhone) {
+        <button matButton class="summary-more" (click)="allMuscles.set(!allMuscles())">
+            {{ allMuscles() ? 'Show fewer muscles' : 'Show all muscles' }}
+        </button>
+        }
+    </aside>
+    }
+
+    <div class="history-list">
+        @if (workouts.completed.error()) {
+        <p class="workout-list-empty">Could not load your workouts.</p>
+        } @else if (workouts.completed.isLoading() && workouts.completed.value().length === 0) {
+        <p class="workout-list-empty">Loading…</p>
+        } @else {
+        @for (workout of workouts.completed.value(); track workout.id) {
+        <div class="swipe-row">
+            <div class="swipe-row-action swipe-row-delete" aria-hidden="true">
+                <mat-icon>delete</mat-icon>
+            </div>
+            <div class="workout-item" appSwipeActions #swipe="appSwipeActions" (swipedLeft)="delete(workout.id, swipe)">
+                <div class="workout-item-text workout-item-open" role="button" tabindex="0" (click)="openPreview(workout)"
+                    (keydown.enter)="openPreview(workout)">
+                    <div class="history-item-head">
+                        <h2 class="history-item-name">{{ workout.name || 'Workout' }}</h2>
+                        <div class="history-item-volume">{{ workout.volumeKg | number: '1.0-1' }} <span class="history-item-unit">kg</span></div>
+                    </div>
+                    <div class="workout-item-meta">
+                        {{ workout.completedAtUtc | date: 'EEE d MMM' }} · {{ duration(workout.durationSeconds) }} · {{ workout.exerciseCount }} exercises · {{ workout.setCount }} sets
+                    </div>
+                </div>
+                <button mat-icon-button aria-label="Workout options" [matMenuTriggerFor]="workoutMenu">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #workoutMenu="matMenu">
+                    <button mat-menu-item (click)="openPreview(workout)">
+                        <mat-icon>visibility</mat-icon>
+                        Preview
+                    </button>
+                    <button mat-menu-item (click)="delete(workout.id)">
+                        <mat-icon>delete</mat-icon>
+                        Delete
+                    </button>
+                </mat-menu>
+            </div>
+        </div>
+        } @empty {
+        <p class="workout-list-empty">No completed workouts yet.</p>
+        }
+        }
     </div>
-    } @empty {
-    <p class="workout-list-empty">No completed workouts yet.</p>
-    }
-    }
 </section>

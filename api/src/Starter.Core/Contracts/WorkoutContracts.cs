@@ -41,6 +41,19 @@ public record WorkoutResponse(
     DateTime UpdatedAtUtc,
     IReadOnlyList<WorkoutExerciseResponse> Exercises);
 
+// Sets and volume on one muscle. A set counts for every primary muscle of its exercise.
+public record MuscleSummaryResponse(int MuscleId, string Name, int SetCount, decimal VolumeKg);
+
+// Totals of the workouts completed in the last days, working sets only.
+// Most sets first. Exercises without a primary muscle only count in the totals.
+public record WorkoutPeriodSummaryResponse(
+    int Days,
+    int WorkoutCount,
+    int DurationSeconds,
+    int SetCount,
+    decimal VolumeKg,
+    IReadOnlyList<MuscleSummaryResponse> Muscles);
+
 // A row in a list of workouts. Volume is kg × reps of the working sets.
 public record WorkoutSummaryResponse(
     int Id,

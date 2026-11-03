@@ -1,0 +1,187 @@
+.history {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 24px 12px 16px;
+}
+
+.history-title {
+    padding: 0 4px;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.summary {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 8px;
+    background: var(--mat-sys-surface-container);
+}
+
+.summary-label {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.summary-volume {
+    color: var(--mat-sys-primary);
+    font-family: var(--ft-font-numbers);
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.summary-volume-unit {
+    font-size: 24px;
+}
+
+.summary-totals {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.summary-value {
+    font-family: var(--ft-font-numbers);
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.summary-name {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 13px;
+}
+
+.summary-muscles {
+    width: 100%;
+    border-top: 1px solid var(--mat-sys-outline-variant);
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+
+    th {
+        padding: 8px 0 4px;
+        color: var(--mat-sys-on-surface-variant);
+        font-size: 13px;
+        font-weight: 400;
+    }
+
+    td {
+        height: 32px;
+        padding: 0;
+        font-weight: 600;
+    }
+
+    th:first-child,
+    td:first-child {
+        text-align: left;
+    }
+
+    td:first-child {
+        font-weight: 500;
+    }
+
+    th:not(:first-child),
+    td:not(:first-child) {
+        width: 64px;
+        text-align: right;
+    }
+}
+
+.summary-more {
+    align-self: stretch;
+}
+
+/* Inside the list file's .swipe-row, which sizes rows for the plans. */
+.history .swipe-row {
+    width: 100%;
+}
+
+.history .swipe-row .workout-item {
+    padding: 10px 4px 10px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--mat-sys-surface-container);
+}
+
+.history .swipe-row-action {
+    border-radius: 8px;
+}
+
+.history-item-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.history-item-name,
+.history-item-volume {
+    margin: 0;
+    font-family: var(--ft-font-numbers);
+    font-size: 24px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.history-item-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.history-item-volume {
+    flex-shrink: 0;
+}
+
+.history-item-unit {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+@media screen and (max-width: 959px) {
+    .muscle-hidden {
+        display: none;
+    }
+}
+
+/* The list on the left; the summary stays in view on the right, with every muscle. */
+@media screen and (min-width: 960px) {
+    .history {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        align-items: start;
+        gap: 16px 24px;
+        max-width: 1100px;
+        padding: 24px;
+    }
+
+    .history-title {
+        padding: 0;
+    }
+
+    .history-list {
+        grid-column: 1;
+    }
+
+    .summary {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        position: sticky;
+        top: 24px;
+    }
+
+    .summary-more {
+        display: none;
+    }
+}

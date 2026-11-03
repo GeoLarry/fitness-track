@@ -77,6 +77,7 @@ dotnet test
 | GET | `/api/muscles`, `/api/equipment`, `/api/exercise-types` | Exercises.View |
 | GET | `/api/workouts?status=Planned\|InProgress\|Completed` (your own; plans by day, history newest first) | Workouts.View |
 | GET | `/api/workouts/current` (the workout in progress, 204 if none) | Workouts.View |
+| GET | `/api/workouts/summary?days=7` (totals of your completed workouts, with sets and volume per primary muscle; 1-365 days) | Workouts.View |
 | GET | `/api/workouts/{id}` | Workouts.View |
 | POST | `/api/workouts` (status `Planned` or `InProgress`; one in progress at a time) | Workouts.Create |
 | PUT | `/api/workouts/{id}` (replaces name, notes, exercises and sets; save at any time) | Workouts.Edit |

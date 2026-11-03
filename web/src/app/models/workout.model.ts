@@ -56,6 +56,24 @@ export interface Workout {
   exercises: WorkoutExercise[];
 }
 
+// Sets and volume on one muscle. A set counts for every primary muscle of its exercise.
+export interface MuscleSummary {
+  muscleId: number;
+  name: string;
+  setCount: number;
+  volumeKg: number;
+}
+
+// Totals of the workouts completed in the last days, working sets only. Most sets first.
+export interface WorkoutPeriodSummary {
+  days: number;
+  workoutCount: number;
+  durationSeconds: number;
+  setCount: number;
+  volumeKg: number;
+  muscles: MuscleSummary[];
+}
+
 // A row in a list. Sets and volume (kg × reps) count working sets only.
 export interface WorkoutSummary {
   id: number;

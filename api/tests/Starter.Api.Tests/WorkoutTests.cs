@@ -1,7 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.Extensions.DependencyInjection;
 using Starter.Core.Contracts;
 using Starter.Core.Enums;
+using Starter.Core.Models;
+using Starter.Infrastructure.Data;
 
 namespace Starter.Api.Tests;
 
@@ -214,12 +217,109 @@ public class WorkoutTests(StarterApiFactory factory) : IClassFixture<StarterApiF
     }
 
     [Fact]
+    public async Task The_summary_totals_working_sets_and_splits_them_by_primary_muscle()
+    {
+        (_, HttpClient client) = await factory.RegisterUserAsync();
+        Dictionary<string, int> muscles = await MuscleIdsAsync(client);
+        int press = await CreateExerciseAsync(client, "Press", [muscles["Chest"], muscles["Triceps"]], [muscles["Front delts"]]);
+        int squat = await CreateExerciseAsync(client, "Squat variation", [muscles["Quads"]], []);
+        int noMuscle = await CreateExerciseAsync(client, "No muscle", [], []);
+
+        await CompleteAsync(client, 600,
+        [
+            new(press, null, [new(true, 20, 10, true), new(false, 60, 10, true), new(false, 50, 5, true)]),
+            new(noMuscle, null, [new(false, 10, 10, true)]),
+        ]);
+        await CompleteAsync(client, 300, [new(press, null, [new(false, 100, 1, true)]), new(squat, null, [new(false, 100, 5, true)])]);
+
+        WorkoutPeriodSummaryResponse summary = await SummaryAsync(client, "");
+
+        Assert.Equal(7, summary.Days);
+        Assert.Equal(2, summary.WorkoutCount);
+        Assert.Equal(900, summary.DurationSeconds);
+        Assert.Equal(5, summary.SetCount);
+        Assert.Equal(600m + 250 + 100 + 100 + 500, summary.VolumeKg);
+        Assert.Equal(["Chest", "Triceps", "Quads"], summary.Muscles.Select(m => m.Name));
+        Assert.Equal(3, summary.Muscles[0].SetCount);
+        Assert.Equal(950m, summary.Muscles[0].VolumeKg);
+        Assert.Equal(1, summary.Muscles[2].SetCount);
+        Assert.Equal(500m, summary.Muscles[2].VolumeKg);
+    }
+
+    [Fact]
+    public async Task The_summary_leaves_out_older_unfinished_and_other_users_workouts()
+    {
+        (HttpClient client, HttpClient other) = await TwoUsersAsync();
+        int benchPress = await ExerciseIdAsync(client, "Bench Press");
+        List<WorkoutExerciseRequest> content = [new(benchPress, null, [new(false, 60, 10, true)])];
+
+        WorkoutResponse old = await CompleteAsync(client, 600, content);
+        await CompletedDaysAgoAsync(old.Id, 8);
+        await CreateAsync(client, WorkoutStatus.Planned, content);
+        await CreateAsync(client, WorkoutStatus.InProgress, content);
+        await CompleteAsync(other, 600, content);
+
+        WorkoutPeriodSummaryResponse week = await SummaryAsync(client, "");
+        Assert.Equal(0, week.WorkoutCount);
+        Assert.Equal(0m, week.VolumeKg);
+        Assert.Empty(week.Muscles);
+
+        Assert.Equal(1, (await SummaryAsync(client, "?days=30")).WorkoutCount);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(366)]
+    public async Task The_summary_rejects_a_period_out_of_range(int days)
+    {
+        (_, HttpClient client) = await factory.RegisterUserAsync();
+
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.GetAsync($"/api/workouts/summary?days={days}")).StatusCode);
+    }
+
+    [Fact]
     public async Task Visitors_get_401()
     {
         HttpClient anonymous = factory.CreateClient();
 
+        Assert.Equal(HttpStatusCode.Unauthorized, (await anonymous.GetAsync("/api/workouts/summary")).StatusCode);
+
         Assert.Equal(HttpStatusCode.Unauthorized, (await anonymous.GetAsync("/api/workouts")).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await anonymous.GetAsync("/api/workouts/current")).StatusCode);
+    }
+
+    private static async Task<WorkoutPeriodSummaryResponse> SummaryAsync(HttpClient client, string query)
+        => (await client.GetFromJsonAsync<WorkoutPeriodSummaryResponse>($"/api/workouts/summary{query}", StarterApiFactory.Json))!;
+
+    private static async Task<Dictionary<string, int>> MuscleIdsAsync(HttpClient client)
+    {
+        List<CatalogItemResponse> muscles = (await client.GetFromJsonAsync<List<CatalogItemResponse>>("/api/muscles", StarterApiFactory.Json))!;
+        return muscles.ToDictionary(m => m.Name, m => m.Id);
+    }
+
+    private static async Task<int> CreateExerciseAsync(HttpClient client, string name, List<int> primary, List<int> secondary)
+    {
+        HttpResponseMessage response = await client.PostAsJsonAsync("/api/exercises",
+            new CreateExerciseRequest(name, null, null, null, null, primary, secondary), StarterApiFactory.Json);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        return (await response.Content.ReadFromJsonAsync<ExerciseResponse>(StarterApiFactory.Json))!.Id;
+    }
+
+    private static async Task<WorkoutResponse> CompleteAsync(HttpClient client, int seconds, List<WorkoutExerciseRequest> exercises)
+    {
+        WorkoutResponse started = await CreateAsync(client, WorkoutStatus.InProgress, exercises);
+        HttpResponseMessage response = await client.PostAsJsonAsync($"/api/workouts/{started.Id}/complete", new CompleteWorkoutRequest(seconds), StarterApiFactory.Json);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        return (await response.Content.ReadFromJsonAsync<WorkoutResponse>(StarterApiFactory.Json))!;
+    }
+
+    private async Task CompletedDaysAgoAsync(int id, int days)
+    {
+        using IServiceScope scope = factory.Services.CreateScope();
+        AppDbContext db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        Workout workout = (await db.Workouts.FindAsync(id))!;
+        workout.CompletedAtUtc = DateTime.UtcNow.AddDays(-days);
+        await db.SaveChangesAsync();
     }
 
     private async Task<(HttpClient Owner, HttpClient Other)> TwoUsersAsync()
