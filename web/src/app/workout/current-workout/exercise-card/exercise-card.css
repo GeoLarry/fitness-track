@@ -1,169 +1,32 @@
-.current-workout-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 30px;
-    padding-top: 0;
-    padding-bottom: 90px;
-    flex-direction: column;
-}
+.exercise-card {
+    --mat-table-background-color: transparent;
+    --mat-table-row-item-container-height: 48px;
+    --mat-table-row-item-outline-color: var(--mat-sys-outline-variant);
 
-.current-workout-card {
-    width: 478px;
+    padding: 4px 12px 12px;
+    border-radius: 8px;
+    background: var(--mat-sys-surface-container);
+    box-shadow: none;
 }
 
 mat-card-header {
     display: flex;
-    justify-content: center;
-    padding-bottom: 16px;
-    background-color: var(--mat-sys-surface-container-high);
-    -moz-border-radius: 0px;
-    -webkit-border-radius: 24px 24px 0px 0px;
-    border-radius: 24px 24px 0px 0px;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 48px;
+    padding: 0;
 }
 
 .exercise-title {
     cursor: pointer;
+    font-family: var(--ft-font-numbers);
+    font-size: 24px;
+    font-weight: 700;
 }
 
-mat-card-content {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    padding-left: 0;
-    padding-right: 0;
-    padding-top: 16px;
-}
-
-mat-card-actions {
-    display: flex;
-    justify-content: center;
-}
-
-hr {
-    width: 99.5%;
-    color: var(--mat-sys-outline-variant);
-    margin: 16px 0;
-}
-
-.cw-header {
-    /* position: sticky; */
-    width: 100%;
-    padding: 16px 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.cw-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 8px;
-    max-width: 599px;
-}
-
-.cw-clear-btn {
-    border: 0.5px solid #FF2C2C;
-    color: #FF2C2C;
-    background-color: transparent;
-}
-
-.cw-done-btn {
-    border: 0.5px solid #008000;
-    color: #008000;
-    background-color: transparent;
-}
-
-.cw-controls-right {
-    display: flex;
-    gap: 8px;
-}
-
-.exercise-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.cw-add-ex {
-    border: 2px solid var(--mat-sys-outline-variant);
-}
-
-.cw-warmup {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-}
-
-.cw-add-set {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-}
-
-table {
-    width: 100%;
-}
-
-.w100 {
-    width: 100%;
-}
-
-.cell-click {
-    cursor: pointer;
-    display: inline-block;
-    padding: 4px;
-}
-
-mat-form-field {
-    margin: 0;
+mat-card-content,
+mat-card-content:last-child {
     padding: 0;
-}
-
-@media screen and (max-width: 478px) {
-    form {
-        width: 100%
-    }
-
-    .current-workout-container {
-        padding: 0px;
-        width: 100%;
-        padding-bottom: 58px;
-    }
-
-    .current-workout-card {
-        width: 100%;
-    }
-}
-
-.exercise-card {
-    width: 478px;
-    max-width: 100%;
-    margin: auto;
-    margin-bottom: 32px;
-
-    display: flex;
-    flex-direction: column;
-
-    @media (max-width: 478px) {
-        width: 100%;
-    }
-}
-
-.exercise-title-input {
-    width: 100%;
-    border: none;
-    outline: none;
-    font-size: 20px;
-}
-
-.center-row {
-    display: flex;
-    justify-content: center;
-    margin: 12px 0;
 }
 
 /* Hides the delete action waiting beside each row. */
@@ -173,25 +36,28 @@ mat-form-field {
 
 .exercise-table {
     width: 100%;
-    border-spacing: 0 4px;
+    /* The same columns on every card, whatever the numbers. */
+    table-layout: fixed;
 
     tr {
         user-select: none;
     }
 
     td {
-        padding: 10px;
+        padding: 0 4px;
         /* Set here because browsers ignore touch-action on a table row, and rows swipe sideways. */
         touch-action: pan-y;
 
         &:first-child {
-            width: 40px;
+            width: 28px;
+            color: var(--mat-sys-on-surface-variant);
+            font-weight: 600;
         }
 
         &:last-child {
             width: 96px;
             padding-left: 0;
-            padding-right: 4px;
+            padding-right: 0;
             position: relative;
             /* Material clips its cells, and this one holds the action beside the row. */
             overflow: visible;
@@ -214,13 +80,48 @@ mat-form-field {
     color: var(--mat-sys-on-error);
 }
 
+.warmup-icon {
+    display: block;
+    color: var(--mat-sys-primary);
+}
+
 .editable {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
     cursor: pointer;
+    font-family: var(--ft-font-numbers);
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 44px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.unit {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.warmup-row .editable {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 26px;
+    font-weight: 600;
 }
 
 .edit-input {
-    width: 80px;
-    font-size: 16px;
+    box-sizing: border-box;
+    width: 72px;
+    height: 40px;
+    padding: 0 8px;
+    border: 1px solid var(--mat-sys-primary);
+    border-radius: 4px;
+    background: var(--mat-sys-surface-container-high);
+    color: var(--mat-sys-on-surface);
+    font-family: var(--ft-font-numbers);
+    font-size: 22px;
+    font-weight: 600;
 }
 
 .row-actions {
@@ -233,4 +134,19 @@ mat-form-field {
     width: 32px;
     height: 32px;
     padding: 4px;
+}
+
+.card-add {
+    --mat-button-tonal-container-color: var(--mat-sys-surface-container-high);
+    --mat-button-tonal-label-text-color: var(--mat-sys-on-surface);
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding-top: 8px;
+
+    button {
+        height: 44px;
+        border-radius: 8px;
+    }
 }

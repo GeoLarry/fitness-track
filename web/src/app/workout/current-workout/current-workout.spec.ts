@@ -191,6 +191,72 @@ describe('CurrentWorkout', () => {
     expect(navigate).toHaveBeenCalledWith(['/training']);
   });
 
+  describe('leaving', () => {
+    const leaveAfterChange = async () => {
+      workouts.getCurrent.mockResolvedValue(workout({ exercises: [benchPress] }));
+      await setUp({ mode: 'start-workout' });
+      component.updateRows(component.exerciseCards()[0].key, [{ warmup: false, weight: 80, reps: 8 }]);
+      ask.mockClear();
+    };
+
+    it('leaves without asking when nothing changed', async () => {
+      workouts.getCurrent.mockResolvedValue(workout({ exercises: [benchPress] }));
+      await setUp({ mode: 'start-workout' });
+      ask.mockClear();
+
+      expect(await component.canLeave()).toBe(true);
+      expect(ask).not.toHaveBeenCalled();
+    });
+
+    it('asks before losing changes and stays when the user says no', async () => {
+      await leaveAfterChange();
+      ask.mockResolvedValue(false);
+
+      expect(await component.canLeave()).toBe(false);
+      expect(ask).toHaveBeenCalledWith(expect.objectContaining({ title: 'Leave without saving?' }));
+    });
+
+    it('does not ask after a save', async () => {
+      await leaveAfterChange();
+      workouts.save.mockResolvedValue(workout({}));
+
+      await component.onSave();
+
+      expect(await component.canLeave()).toBe(true);
+      expect(ask).not.toHaveBeenCalled();
+    });
+
+    it('does not ask again after cancelling', async () => {
+      await leaveAfterChange();
+      workouts.delete.mockResolvedValue(undefined);
+      await component.cancel();
+      ask.mockClear();
+
+      expect(await component.canLeave()).toBe(true);
+      expect(ask).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('elapsed time', () => {
+    afterEach(() => vi.useRealTimers());
+
+    const elapsedAfter = async (seconds: number) => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      vi.setSystemTime(Date.parse('2026-11-01T10:00:00Z') + seconds * 1000);
+      workouts.getCurrent.mockResolvedValue(workout({}));
+      await setUp({ mode: 'start-workout' });
+      return component.elapsed();
+    };
+
+    it('shows minutes and seconds under an hour', async () => {
+      expect(await elapsedAfter(32 * 60 + 18)).toBe('32:18');
+    });
+
+    it('adds the hours from one hour on', async () => {
+      expect(await elapsedAfter(3600 + 2 * 60 + 5)).toBe('1:02:05');
+    });
+  });
+
   it('opens a plan for editing', async () => {
     workouts.get.mockResolvedValue(workout({ id: 3, status: 'Planned', name: 'Leg day', plannedForUtc: '2026-11-03T00:00:00Z', startedAtUtc: null }));
 

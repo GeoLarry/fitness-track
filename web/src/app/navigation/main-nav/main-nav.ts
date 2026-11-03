@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, map } from 'rxjs';
@@ -13,6 +13,9 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class MainNav {
   private router = inject(Router);
+
+  // During a live workout the bar on phones goes away, so a tap cannot leave the workout.
+  readonly hideOnPhone = input(false);
 
   private readonly path = toSignal(
     this.router.events.pipe(

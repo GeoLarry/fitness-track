@@ -2,3 +2,10 @@
     padding-bottom: var(--ft-nav-bottom);
     padding-left: var(--ft-nav-left);
 }
+
+/* No bar below during a live workout, so the rest timer goes to the bottom of the screen. */
+@media screen and (max-width: 959px) {
+    .live-workout {
+        --ft-nav-bottom: env(safe-area-inset-bottom, 0px);
+    }
+}

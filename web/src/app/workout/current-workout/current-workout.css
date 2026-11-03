@@ -1,64 +1,29 @@
-app-exercise-card {
-    width: 100%;
-}
-.current-workout-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 30px;
-    padding-top: 0;
-    padding-bottom: 90px;
-    flex-direction: column;
-}
-
-.current-workout-card {
-    width: 478px;
-}
-
-mat-card-header {
-    display: flex;
-    justify-content: center;
-    padding-bottom: 16px;
-    background-color: var(--mat-sys-surface-container-high);
-    -moz-border-radius: 0px;
-    -webkit-border-radius: 24px 24px 0px 0px;
-    border-radius: 24px 24px 0px 0px;
-}
-
-mat-card-content {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    padding-left: 0;
-    padding-right: 0;
-    padding-top: 16px;
-}
-
-mat-card-actions {
-    display: flex;
-    justify-content: center;
-}
-
-hr {
-    width: 99.5%;
-    color: var(--mat-sys-outline-variant);
-    margin: 16px 0;
-}
-
-.cw-header {
-    width: 100%;
-    padding: 16px 0;
+.cw {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    gap: 12px;
+    /* Room for the rest timer fixed to the bottom. */
+    padding: 16px 12px 72px;
+}
+
+.cw-side {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.cw-exercises {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
 }
 
 .cw-controls {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 8px;
-    max-width: 599px;
+    gap: 8px;
 }
 
 .cw-clear-btn {
@@ -79,166 +44,77 @@ hr {
     background-color: transparent;
 }
 
+.cw-controls-right {
+    display: flex;
+    gap: 8px;
+}
+
 .cw-elapsed {
-    font-size: 22px;
+    font-family: var(--ft-font-numbers);
+    font-size: clamp(40px, 14vw, 56px);
+    font-weight: 700;
+    line-height: 1;
     font-variant-numeric: tabular-nums;
+}
+
+.cw-title {
+    margin: 0;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-align: center;
+    text-transform: uppercase;
 }
 
 .cw-plan-fields {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    padding: 16px 8px 0;
+    padding-top: 12px;
 }
 
 .cw-plan-fields mat-form-field {
     flex: 1 1 180px;
 }
 
-.cw-title {
-    text-align: center;
-    margin: 12px 0 0;
-}
-
-.cw-controls-right {
-    display: flex;
-    gap: 8px;
-}
-
-.exercise-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .cw-add-ex {
-    border: 2px solid var(--mat-sys-outline-variant);
-}
-
-.cw-warmup {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-shrink: 0;
     width: 100%;
-}
-
-.cw-add-set {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-}
-
-table {
-    width: 100%;
-}
-
-.w100 {
-    width: 100%;
-}
-
-.cell-click {
-    cursor: pointer;
-    display: inline-block;
-    padding: 4px;
-}
-
-mat-form-field {
-    margin: 0;
-    padding: 0;
-}
-
-@media screen and (max-width: 478px) {
-    form {
-        width: 100%
-    }
-
-    .current-workout-container {
-        padding: 0px;
-        width: 100%;
-        padding-bottom: 58px;
-    }
-
-    .current-workout-card {
-        width: 100%;
-    }
-}
-
-.exercise-card {
-    width: 478px;
-    max-width: 100%;
-    margin: auto;
-    margin-bottom: 32px;
-
-    display: flex;
-    flex-direction: column;
-
-    @media (max-width: 478px) {
-        width: 100%;
-    }
-}
-
-.exercise-title-input {
-    width: 100%;
-    border: none;
-    outline: none;
-    font-size: 20px;
-}
-
-.center-row {
-    display: flex;
-    justify-content: center;
-    margin: 12px 0;
-}
-
-.exercise-table {
-    width: 100%;
-    border-spacing: 0 4px;
-
-    td {
-        padding: 10px;
-
-        &:first-child {
-            width: 40px;
-        }
-
-        &:last-child {
-            width: 50px;
-            text-align: right;
-        }
-    }
-}
-
-.editable {
-    cursor: pointer;
-}
-
-.edit-input {
-    width: 80px;
+    height: 52px;
+    border-radius: 8px;
+    color: var(--mat-sys-on-surface);
     font-size: 16px;
 }
 
-/* SWIPE */
-.exercise-table {
-    width: 100%;
-}
+/* Exercises on the left; the time, the buttons and the rest timer stay in view on the right. */
+@media screen and (min-width: 960px) {
+    .cw {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        align-items: start;
+        gap: 24px;
+        max-width: 1100px;
+        padding: 24px;
+    }
 
-.swipe-container {
-    width: 100%;
-    transition: transform 0.2s ease-out;
-    touch-action: pan-y;
-}
+    .cw-side {
+        order: 2;
+        position: sticky;
+        top: 24px;
+        gap: 16px;
+        padding: 16px;
+        border-radius: 8px;
+        background: var(--mat-sys-surface-container);
+    }
 
-/* Optional visual feedback */
-tr.cdk-drag-preview {
-    background: rgba(0, 0, 0, 0.07);
-    border-radius: 6px;
-}
+    .cw-controls {
+        flex-wrap: wrap;
+    }
 
-tr.cdk-drag-animating {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-}
-
-.cdk-drop-list-dragging tr:not(.cdk-drag-placeholder) {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    .cw-elapsed {
+        order: -1;
+        width: 100%;
+        text-align: center;
+    }
 }

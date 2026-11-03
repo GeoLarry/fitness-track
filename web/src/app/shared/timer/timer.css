@@ -1,25 +1,35 @@
 .timer-bar {
+    --mat-icon-button-icon-color: var(--mat-sys-on-primary);
+
     position: fixed;
     bottom: var(--ft-nav-bottom);
     left: var(--ft-nav-left);
     right: 0;
-    height: 72px;
+    height: 56px;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 8px;
 
-    background: var(--mat-sys-surface-container-high);
-    border-top: 0.5px solid var(--mat-sys-outline);
+    background: var(--mat-sys-primary);
+    color: var(--mat-sys-on-primary);
 
     z-index: 90;
 }
 
-.time-display {
-    font-size: 28px;
+.timer-label {
+    margin-left: auto;
     font-weight: 600;
+}
+
+.time-display {
+    margin-right: auto;
+    font-family: var(--ft-font-numbers);
+    font-size: 36px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
     cursor: pointer;
-    color: var(--mat-sys-on-surface);
 }
 
 .edit-display {
@@ -29,7 +39,20 @@
 }
 
 .time-input {
-    width: 48px;
-    font-size: 22px;
+    box-sizing: border-box;
+    width: 56px;
+    height: 40px;
+    border: 0;
+    border-radius: 4px;
+    background: var(--mat-sys-surface);
+    color: var(--mat-sys-on-surface);
+    font-size: 18px;
     text-align: center;
+}
+
+@media screen and (min-width: 960px) {
+    .timer-bar {
+        position: static;
+        border-radius: 8px;
+    }
 }

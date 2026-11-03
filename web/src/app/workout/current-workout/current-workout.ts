@@ -56,12 +56,18 @@ export class CurrentWorkout {
   private readonly now = signal(Date.now());
   private nextKey = 0;
 
-  // Time since the workout started, as h:mm:ss.
+  // What the last save or load held, to notice changes that would be lost on leaving.
+  private savedRequest = '';
+  private discarded = false;
+
+  // Time since the workout started: m:ss, with the hours in front once it passes an hour.
   readonly elapsed = computed(() => {
     const started = this.startedAt();
     if (started === null) return '';
     const seconds = Math.max(0, Math.floor((this.now() - started) / 1000));
-    return `${Math.floor(seconds / 3600)}:${pad(Math.floor(seconds / 60) % 60)}:${pad(seconds % 60)}`;
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor(seconds / 60) % 60;
+    return hours > 0 ? `${hours}:${pad(minutes)}:${pad(seconds % 60)}` : `${minutes}:${pad(seconds % 60)}`;
   });
 
   constructor() {
@@ -110,7 +116,14 @@ export class CurrentWorkout {
       }
     }
 
+    this.discarded = true;
     await this.router.navigate(['/training']);
+  }
+
+  // Asked by the route guard. Cancelling asks by itself, and a save leaves nothing to lose.
+  async canLeave(): Promise<boolean> {
+    if (this.discarded || JSON.stringify(this.request()) === this.savedRequest) return true;
+    return this.confirm.ask({ title: 'Leave without saving?', message: 'Changes since your last save will be lost.', confirmLabel: 'Leave' });
   }
 
   deleteCard(key: number) {
@@ -164,6 +177,7 @@ export class CurrentWorkout {
     } catch (error) {
       this.showError(error);
     } finally {
+      this.savedRequest = JSON.stringify(this.request());
       this.loading.set(false);
     }
   }
@@ -200,6 +214,7 @@ export class CurrentWorkout {
       } else {
         await this.workouts.save(id, request);
       }
+      this.savedRequest = JSON.stringify(request);
       return true;
     } catch (error) {
       this.showError(error);

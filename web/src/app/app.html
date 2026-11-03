@@ -1,6 +1,6 @@
 @if (isAuth()) {
-<app-main-nav></app-main-nav>
+<app-main-nav [hideOnPhone]="liveWorkout()"></app-main-nav>
 }
-<main [class.with-nav]="isAuth()">
+<main [class.with-nav]="isAuth()" [class.live-workout]="liveWorkout()">
     <router-outlet></router-outlet>
 </main>
