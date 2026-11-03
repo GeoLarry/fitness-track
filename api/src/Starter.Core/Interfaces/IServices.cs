@@ -65,6 +65,9 @@ public interface IWorkoutService
     // Completed: newest first. Planned: by planned day, undated last. All statuses when status is null.
     Task<IReadOnlyList<WorkoutSummaryResponse>> GetWorkoutsAsync(int userId, WorkoutStatus? status, CancellationToken ct = default);
 
+    // Throws ValidationFailedException when days is not between 1 and 365.
+    Task<WorkoutPeriodSummaryResponse> GetSummaryAsync(int userId, int days, CancellationToken ct = default);
+
     // null if it does not exist or belongs to another user.
     Task<WorkoutResponse?> GetWorkoutAsync(int id, int userId, CancellationToken ct = default);
 

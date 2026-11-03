@@ -17,6 +17,7 @@ public class WorkoutService(AppDbContext db) : IWorkoutService
     private const decimal MaxWeightKg = 1000;
     private const int MaxReps = 1000;
     private const int MaxDurationSeconds = 24 * 60 * 60;
+    private const int MaxSummaryDays = 365;
 
     public async Task<IReadOnlyList<WorkoutSummaryResponse>> GetWorkoutsAsync(int userId, WorkoutStatus? status, CancellationToken ct = default)
     {
@@ -33,6 +34,43 @@ public class WorkoutService(AppDbContext db) : IWorkoutService
             .ThenByDescending(w => w.CompletedAtUtc ?? w.StartedAtUtc ?? w.CreatedAtUtc)
             .Select(ToSummary)
             .ToList();
+    }
+
+    public async Task<WorkoutPeriodSummaryResponse> GetSummaryAsync(int userId, int days, CancellationToken ct = default)
+    {
+        if (days is < 1 or > MaxSummaryDays) throw new ValidationFailedException($"Days must be between 1 and {MaxSummaryDays}.");
+
+        DateTime since = DateTime.UtcNow.AddDays(-days);
+        List<Workout> workouts = await OwnedBy(userId).AsNoTracking()
+            .Where(w => w.Status == WorkoutStatus.Completed && w.CompletedAtUtc >= since)
+            .Include(w => w.Exercises).ThenInclude(e => e.Sets)
+            .Include(w => w.Exercises).ThenInclude(e => e.Exercise).ThenInclude(e => e.Muscles).ThenInclude(m => m.Muscle)
+            .AsSplitQuery()
+            .ToListAsync(ct);
+
+        var exercises = workouts.SelectMany(w => w.Exercises)
+            .Select(e => new { e.Exercise, Sets = e.Sets.Where(s => !s.IsWarmup).ToList() })
+            .ToList();
+
+        List<MuscleSummaryResponse> muscles = exercises
+            .SelectMany(e => e.Exercise.Muscles.Where(m => m.IsPrimary).Select(m => new { m.Muscle, e.Sets }))
+            .GroupBy(x => x.Muscle.Id)
+            .Select(group => new MuscleSummaryResponse(
+                group.Key,
+                group.First().Muscle.Name,
+                group.Sum(x => x.Sets.Count),
+                group.SelectMany(x => x.Sets).Sum(s => s.WeightKg * s.Reps)))
+            .Where(m => m.SetCount > 0)
+            .OrderByDescending(m => m.SetCount).ThenByDescending(m => m.VolumeKg).ThenBy(m => m.Name)
+            .ToList();
+
+        return new WorkoutPeriodSummaryResponse(
+            days,
+            workouts.Count,
+            workouts.Sum(w => w.DurationSeconds ?? 0),
+            exercises.Sum(e => e.Sets.Count),
+            exercises.SelectMany(e => e.Sets).Sum(s => s.WeightKg * s.Reps),
+            muscles);
     }
 
     public async Task<WorkoutResponse?> GetWorkoutAsync(int id, int userId, CancellationToken ct = default)

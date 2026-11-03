@@ -70,7 +70,8 @@ The API has no migrations yet: after pulling changes to its data model, delete `
 - [x] Redesign, step 1: dark athletic theme, bottom bar on phones and side column on computers instead of the side menu and tabs, History and Profile pages
 - [x] Redesign, step 2: live workout in the new design, no bottom bar during it on phones, a question before leaving with unsaved changes
 - [x] A live workout saves itself after every change, and when the page goes to the background
-- [ ] Redesign, next steps: History with a weekly summary, Training and dialogs, Home
+- [x] Redesign, step 3: History with a weekly summary of time, sets and kg, in total and per primary muscle
+- [ ] Redesign, next steps: Training and dialogs, Home
 - [ ] Workout screens in the new design, on the workouts API: Training → new workout (live, saved at any time, Done moves it to Completed) or plan (saved for later in Planned)
 - [ ] Better adding of exercises, sets, warm-ups and custom exercises
 - [ ] Admin: user management screen, roles Admin / User / Coach in the web app

@@ -33,6 +33,15 @@ public static class WorkoutEndpoints
         })
         .RequirePermission(PermissionModule.Workouts, PermissionAction.View);
 
+        // Totals of the last days, 7 unless asked otherwise.
+        group.MapGet("/summary", async (int? days, ICurrentUserService currentUser, IWorkoutService workouts, CancellationToken ct) =>
+        {
+            if (currentUser.UserId is not int userId) return Results.Unauthorized();
+
+            return Results.Ok(await workouts.GetSummaryAsync(userId, days ?? 7, ct));
+        })
+        .RequirePermission(PermissionModule.Workouts, PermissionAction.View);
+
         group.MapGet("/{id:int}", async (int id, ICurrentUserService currentUser, IWorkoutService workouts, CancellationToken ct) =>
         {
             if (currentUser.UserId is not int userId) return Results.Unauthorized();
