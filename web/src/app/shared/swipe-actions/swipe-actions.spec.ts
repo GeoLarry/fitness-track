@@ -53,6 +53,14 @@ describe('SwipeActions', () => {
     expect(element.style.transform).toBe('translateX(-120px)');
   });
 
+  it('does not follow the finger past the action distance', () => {
+    pointer(element, 'pointerdown', 300);
+    pointer(element, 'pointermove', 250);
+    pointer(element, 'pointermove', 20);
+
+    expect(element.style.transform).toBe('translateX(-120px)');
+  });
+
   it('goes back without emitting below the delete distance', () => {
     swipe(element, 60);
 
@@ -88,6 +96,14 @@ describe('SwipeActions', () => {
 
       expect(host.rightSwipes()).toBe(1);
       expect(host.swipes()).toBe(0);
+      expect(element.style.transform).toBe('translateX(120px)');
+    });
+
+    it('does not follow the finger past the action distance to the right', () => {
+      pointer(element, 'pointerdown', 20);
+      pointer(element, 'pointermove', 70);
+      pointer(element, 'pointermove', 300);
+
       expect(element.style.transform).toBe('translateX(120px)');
     });
 

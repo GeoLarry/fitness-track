@@ -61,7 +61,9 @@ export class SwipeActions {
       this.swiping = true;
       this.element.setPointerCapture(event.pointerId);
     }
-    this.moveTo(this.allowRight() ? dx : Math.min(0, dx), false);
+    // Stops at the action distance, so the end of what lies behind the element never shows.
+    const furthestRight = this.allowRight() ? actionDistance : 0;
+    this.moveTo(Math.max(-actionDistance, Math.min(furthestRight, dx)), false);
   }
 
   onPointerUp(event: PointerEvent) {
