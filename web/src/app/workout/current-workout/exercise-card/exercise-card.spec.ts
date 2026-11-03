@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import type { Mock } from 'vitest';
 
+import { SwipeActions } from '../../../shared/swipe-actions/swipe-actions';
 import { ExerciseCard, ExerciseRow } from './exercise-card';
 import { ConfirmService } from '../../../shared/confirm-dialog/confirm.service';
 import { ExerciseInfoService } from '../../../shared/exercise-info/exercise-info.service';
@@ -177,6 +178,21 @@ describe('ExerciseCard', () => {
 
     ask.mockResolvedValue(true);
     await component.deleteRow(first);
+    expect(component.rows()).not.toContain(first);
+  });
+
+  it('puts a swiped row back unless it was deleted', async () => {
+    const [first] = component.rows();
+    const swipe = { reset: vi.fn() } as unknown as SwipeActions;
+
+    ask.mockResolvedValue(false);
+    await component.deleteRow(first, swipe);
+    expect(swipe.reset).toHaveBeenCalledTimes(1);
+    expect(component.rows()).toContain(first);
+
+    ask.mockResolvedValue(true);
+    await component.deleteRow(first, swipe);
+    expect(swipe.reset).toHaveBeenCalledTimes(1);
     expect(component.rows()).not.toContain(first);
   });
 

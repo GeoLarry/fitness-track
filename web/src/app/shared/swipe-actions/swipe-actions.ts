@@ -42,7 +42,8 @@ export class SwipeActions {
 
   onPointerDown(event: PointerEvent) {
     this.ignoreClick = false;
-    if (event.button !== 0) return;
+    // Dragging inside a field moves its cursor or selects its text.
+    if (event.button !== 0 || (event.target as Element).closest('input, textarea')) return;
     this.start = { x: event.clientX, y: event.clientY };
   }
 

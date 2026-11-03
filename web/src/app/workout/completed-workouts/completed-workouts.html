@@ -20,9 +20,19 @@
                     · {{ workout.volumeKg | number: '1.0-1' }} kg
                 </div>
             </div>
-            <button mat-icon-button aria-label="Delete this workout" (click)="delete(workout.id)">
-                <mat-icon>delete</mat-icon>
+            <button mat-icon-button aria-label="Workout options" [matMenuTriggerFor]="workoutMenu">
+                <mat-icon>more_vert</mat-icon>
             </button>
+            <mat-menu #workoutMenu="matMenu">
+                <button mat-menu-item (click)="openPreview(workout)">
+                    <mat-icon>visibility</mat-icon>
+                    Preview
+                </button>
+                <button mat-menu-item (click)="delete(workout.id)">
+                    <mat-icon>delete</mat-icon>
+                    Delete
+                </button>
+            </mat-menu>
         </div>
     </div>
     } @empty {

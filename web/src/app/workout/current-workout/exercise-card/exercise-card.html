@@ -30,6 +30,7 @@
         </div>
 
         <!-- TABLE -->
+        <div class="exercise-table-clip">
         <table mat-table [dataSource]="rows()" class="exercise-table">
 
             <!-- Counter / icon -->
@@ -88,6 +89,9 @@
                             <mat-icon>more_vert</mat-icon>
                         </button>
                     </div>
+                    <div class="row-swipe-delete" aria-hidden="true">
+                        <mat-icon>delete</mat-icon>
+                    </div>
                 </td>
             </ng-container>
 
@@ -98,8 +102,10 @@
                 </button>
             </mat-menu>
 
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns" appSwipeActions #swipe="appSwipeActions"
+                (swipedLeft)="deleteRow(row, swipe)"></tr>
         </table>
+        </div>
 
         <!-- Add Set -->
         <div class="center-row">

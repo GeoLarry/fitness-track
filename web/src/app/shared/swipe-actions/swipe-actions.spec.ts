@@ -9,6 +9,7 @@ import { SwipeActions } from './swipe-actions';
       (swipedRight)="rightSwipes.set(rightSwipes() + 1)">
       <span class="content" role="button" tabindex="0" (click)="clicks.set(clicks() + 1)" (keydown.enter)="clicks.set(clicks() + 1)">Text</span>
       <button type="button" class="action" (click)="swipe.reset()">Action</button>
+      <input class="field" aria-label="Field" />
     </div>`,
 })
 class Host {
@@ -130,6 +131,13 @@ describe('SwipeActions', () => {
 
     expect(host.swipes()).toBe(1);
     expect(element.style.transform).toBe('translateX(-120px)');
+  });
+
+  it('does not swipe from inside a field', () => {
+    swipe(element.querySelector('.field')!, 150);
+
+    expect(host.swipes()).toBe(0);
+    expect(element.style.transform).toBe('');
   });
 
   it('swallows the click that ends a swipe, but not the next one', () => {

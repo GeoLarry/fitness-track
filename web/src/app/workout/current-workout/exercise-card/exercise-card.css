@@ -166,12 +166,23 @@ mat-form-field {
     margin: 12px 0;
 }
 
+/* Hides the delete action waiting beside each row. */
+.exercise-table-clip {
+    overflow: hidden;
+}
+
 .exercise-table {
     width: 100%;
     border-spacing: 0 4px;
 
+    tr {
+        user-select: none;
+    }
+
     td {
         padding: 10px;
+        /* Set here because browsers ignore touch-action on a table row, and rows swipe sideways. */
+        touch-action: pan-y;
 
         &:first-child {
             width: 40px;
@@ -181,8 +192,26 @@ mat-form-field {
             width: 96px;
             padding-left: 0;
             padding-right: 4px;
+            position: relative;
+            /* Material clips its cells, and this one holds the action beside the row. */
+            overflow: visible;
         }
     }
+}
+
+/* As wide as a swipe goes, right beside the row, so it slides in with the row. */
+.row-swipe-delete {
+    position: absolute;
+    top: 0;
+    /* Over the row's bottom border, which is outside the cell's padding box. */
+    bottom: -1px;
+    left: 100%;
+    width: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--mat-sys-error);
+    color: var(--mat-sys-on-error);
 }
 
 .editable {

@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { Exercise } from '../../../models/exercise.model';
 import { ConfirmService } from '../../../shared/confirm-dialog/confirm.service';
 import { ExerciseInfoService } from '../../../shared/exercise-info/exercise-info.service';
+import { SwipeActions } from '../../../shared/swipe-actions/swipe-actions';
 import { ExerciseCatalogService } from '../../exercise-catalog.service';
 
 // One warm-up or working set. Weight and reps are edited in place.
@@ -30,7 +31,7 @@ const moveEasing = 'cubic-bezier(0.2, 0, 0, 1)';
 // One exercise in the current workout: its warm-ups and sets.
 @Component({
   selector: 'app-exercise-card',
-  imports: [MatCardModule, MatIconModule, MatButtonModule, MatMenuModule, MatTableModule, FormsModule],
+  imports: [MatCardModule, MatIconModule, MatButtonModule, MatMenuModule, MatTableModule, FormsModule, SwipeActions],
   templateUrl: './exercise-card.html',
   styleUrl: './exercise-card.css',
 })
@@ -65,8 +66,12 @@ export class ExerciseCard {
     this.rows.update(rows => [...rows, newSet()]);
   }
 
-  async deleteRow(row: ExerciseRow | null) {
-    if (!row || !await this.confirm.ask({ title: row.warmup ? 'Delete this warm-up?' : 'Delete this set?', confirmLabel: 'Delete' })) return;
+  // A swiped row goes back to its place unless it was really deleted.
+  async deleteRow(row: ExerciseRow | null, swipe?: SwipeActions) {
+    if (!row || !await this.confirm.ask({ title: row.warmup ? 'Delete this warm-up?' : 'Delete this set?', confirmLabel: 'Delete' })) {
+      swipe?.reset();
+      return;
+    }
     this.rows.update(rows => rows.filter(r => r !== row));
   }
 

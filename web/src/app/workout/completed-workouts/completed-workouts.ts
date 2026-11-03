@@ -3,6 +3,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { WorkoutService } from '../workout.service';
 import { workoutDuration } from '../workout-duration';
@@ -15,7 +16,7 @@ import { SwipeActions } from '../../shared/swipe-actions/swipe-actions';
 // The workout history, newest first. Tap a workout for its sets, swipe it left to delete it.
 @Component({
   selector: 'app-completed-workouts',
-  imports: [DatePipe, DecimalPipe, MatButtonModule, MatIconModule, SwipeActions],
+  imports: [DatePipe, DecimalPipe, MatButtonModule, MatIconModule, MatMenuModule, SwipeActions],
   templateUrl: './completed-workouts.html',
   styleUrl: '../workout-list.css',
 })
