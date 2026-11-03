@@ -1,0 +1,41 @@
+/* Five rows of 48px; the spacers let the first and last value reach the middle. */
+.wheel {
+    height: 240px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+    text-align: center;
+    font-family: var(--ft-font-numbers);
+    font-variant-numeric: tabular-nums;
+    border-radius: 8px;
+}
+
+.wheel::-webkit-scrollbar {
+    display: none;
+}
+
+.wheel:focus-visible {
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: -2px;
+}
+
+.wheel-spacer {
+    height: 96px;
+}
+
+.wheel-row {
+    height: 48px;
+    line-height: 48px;
+    scroll-snap-align: center;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 26px;
+    font-weight: 600;
+    user-select: none;
+}
+
+.wheel-selected {
+    color: var(--mat-sys-primary);
+    font-size: 36px;
+    font-weight: 700;
+}

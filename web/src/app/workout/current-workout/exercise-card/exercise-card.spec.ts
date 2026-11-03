@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { of } from 'rxjs';
 import type { Mock } from 'vitest';
 
 import { SwipeActions } from '../../../shared/swipe-actions/swipe-actions';
@@ -6,6 +8,7 @@ import { ExerciseCard, ExerciseRow } from './exercise-card';
 import { ConfirmService } from '../../../shared/confirm-dialog/confirm.service';
 import { ExerciseInfoService } from '../../../shared/exercise-info/exercise-info.service';
 import { ExerciseCatalogService } from '../../exercise-catalog.service';
+import { SetWheels } from './set-wheels/set-wheels';
 import { Exercise } from '../../../models/exercise.model';
 
 describe('ExerciseCard', () => {
@@ -13,17 +16,20 @@ describe('ExerciseCard', () => {
   let fixture: ComponentFixture<ExerciseCard>;
   let ask: ReturnType<typeof vi.fn>;
   let openInfo: ReturnType<typeof vi.fn>;
+  let open: Mock;
   let catalogExercises: Exercise[];
 
   beforeEach(async () => {
     ask = vi.fn().mockResolvedValue(true);
     openInfo = vi.fn();
+    open = vi.fn();
     catalogExercises = [];
     await TestBed.configureTestingModule({
       imports: [ExerciseCard],
       providers: [
         { provide: ConfirmService, useValue: { ask } },
         { provide: ExerciseInfoService, useValue: { open: openInfo } },
+        { provide: MatBottomSheet, useValue: { open } },
         { provide: ExerciseCatalogService, useValue: { exercises: { value: () => catalogExercises } } },
       ],
     })
@@ -216,8 +222,70 @@ describe('ExerciseCard', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('70 kg');
 
-    component.setValue(component.rows()[0], 'reps', 10);
+    open.mockReturnValue({ afterDismissed: () => of({ weight: 72.5, reps: 10 }) });
+    component.openWheels(component.rows()[0]);
 
-    expect(changes.at(-1)).toEqual([{ warmup: false, weight: 70, reps: 10 }]);
+    expect(changes.at(-1)).toEqual([{ warmup: false, weight: 72.5, reps: 10 }]);
+  });
+
+  describe('wheels', () => {
+    const set = (weight: number, reps: number, warmup = false): ExerciseRow => ({ warmup, weight, reps });
+    const dataOfLastOpen = () => open.mock.lastCall![1].data;
+
+    beforeEach(() => open.mockReturnValue({ afterDismissed: () => of(undefined) }));
+
+    it('opens at the values of the row, from either number', async () => {
+      fixture.componentRef.setInput('rows', [set(80.5, 8)]);
+      await fixture.whenStable();
+
+      for (const value of fixture.nativeElement.querySelectorAll('.editable')) (value as HTMLElement).click();
+
+      expect(open).toHaveBeenCalledTimes(2);
+      expect(open.mock.lastCall![0]).toBe(SetWheels);
+      expect(dataOfLastOpen()).toMatchObject({ setLabel: 'Set 1', weight: 80.5, reps: 8 });
+    });
+
+    it('starts an empty set from the set before it, not from a warm-up', () => {
+      component.rows.set([set(40, 10, true), set(80, 8), set(85, 6), set(0, 0)]);
+
+      component.openWheels(component.rows()[3]);
+
+      expect(dataOfLastOpen()).toMatchObject({ setLabel: 'Set 3', weight: 85, reps: 6 });
+    });
+
+    it('starts an empty warm-up from the warm-up before it', () => {
+      component.rows.set([set(40, 10, true), set(0, 0, true), set(80, 8)]);
+
+      component.openWheels(component.rows()[1]);
+
+      expect(dataOfLastOpen()).toMatchObject({ setLabel: 'Warm-up', weight: 40, reps: 10 });
+    });
+
+    it('starts the first empty set at zero', () => {
+      component.rows.set([set(0, 0)]);
+
+      component.openWheels(component.rows()[0]);
+
+      expect(dataOfLastOpen()).toMatchObject({ weight: 0, reps: 0 });
+    });
+
+    it('does not fill an empty set until Done', () => {
+      component.rows.set([set(80, 8), set(0, 0)]);
+
+      component.openWheels(component.rows()[1]);
+
+      expect(component.rows()[1]).toEqual(set(0, 0));
+    });
+
+    it('keeps the row kind and shows the new values after Done', async () => {
+      component.rows.set([set(40, 10, true)]);
+      open.mockReturnValue({ afterDismissed: () => of({ weight: 42.5, reps: 8 }) });
+
+      component.openWheels(component.rows()[0]);
+      await fixture.whenStable();
+
+      expect(component.rows()).toEqual([set(42.5, 8, true)]);
+      expect(fixture.nativeElement.textContent).toContain('42.5');
+    });
   });
 });

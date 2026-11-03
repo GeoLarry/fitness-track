@@ -1,0 +1,24 @@
+<div class="set-wheels">
+    <div class="set-wheels-head">
+        <h2 class="set-wheels-name">{{ data.exerciseName }}</h2>
+        <div class="set-wheels-set">{{ data.setLabel }}</div>
+    </div>
+
+    <div class="set-wheels-labels" aria-hidden="true">
+        <div>Kg</div>
+        <div>Decimals</div>
+        <div>Reps</div>
+    </div>
+
+    <div class="set-wheels-wheels">
+        <div class="set-wheels-band" aria-hidden="true"></div>
+        <app-wheel-picker label="Kilos" [values]="wholeLabels" [(index)]="wholeIndex"></app-wheel-picker>
+        <app-wheel-picker label="Decimals of a kilo" [values]="stepLabels" [(index)]="stepIndex"></app-wheel-picker>
+        <app-wheel-picker label="Reps" [values]="repsLabels" [(index)]="repsIndex"></app-wheel-picker>
+    </div>
+
+    <div class="set-wheels-actions">
+        <button matButton="tonal" (click)="cancel()">Cancel</button>
+        <button matButton="filled" (click)="done()">Done · {{ result().weight }} kg × {{ result().reps }}</button>
+    </div>
+</div>
