@@ -1,0 +1,73 @@
+.set-wheels {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 0 calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
+.set-wheels-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.set-wheels-name {
+    margin: 0;
+    font-family: var(--ft-font-numbers);
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.set-wheels-set {
+    flex-shrink: 0;
+    color: var(--mat-sys-on-surface-variant);
+    font-weight: 600;
+}
+
+.set-wheels-labels,
+.set-wheels-wheels {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.set-wheels-labels {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.set-wheels-wheels {
+    position: relative;
+}
+
+/* Behind the middle row of the wheels. */
+.set-wheels-band {
+    position: absolute;
+    top: 96px;
+    left: 0;
+    right: 0;
+    height: 48px;
+    border-radius: 8px;
+    background: var(--mat-sys-surface-container-high);
+}
+
+app-wheel-picker {
+    position: relative;
+    min-width: 0;
+}
+
+.set-wheels-actions {
+    --mat-button-tonal-container-color: var(--mat-sys-surface-container-high);
+    --mat-button-tonal-label-text-color: var(--mat-sys-on-surface);
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: 8px;
+
+    button {
+        height: 52px;
+        border-radius: 8px;
+    }
+}

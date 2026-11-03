@@ -1,0 +1,9 @@
+<div #list class="wheel" role="spinbutton" tabindex="0" [attr.aria-label]="label()" [attr.aria-valuemin]="0"
+    [attr.aria-valuemax]="values().length - 1" [attr.aria-valuenow]="index()" [attr.aria-valuetext]="values()[index()]"
+    (scroll)="onScroll()" (scrollend)="scrollToIndex()" (keydown)="onKeydown($event)">
+    <div class="wheel-spacer"></div>
+    @for (value of values(); track $index) {
+    <div class="wheel-row" [class.wheel-selected]="$index === index()">{{ value }}</div>
+    }
+    <div class="wheel-spacer"></div>
+</div>

@@ -73,7 +73,8 @@ The API has no migrations yet: after pulling changes to its data model, delete `
 - [x] Redesign, step 3: History with a weekly summary of time, sets and kg, in total and per primary muscle
 - [ ] Redesign, next steps: Training and dialogs, Home
 - [ ] Workout screens in the new design, on the workouts API: Training → new workout (live, saved at any time, Done moves it to Completed) or plan (saved for later in Planned)
-- [ ] Better adding of exercises, sets, warm-ups and custom exercises
+- [x] Weight and reps picked on wheels, with quarter kilos
+- [ ] Better adding of exercises and custom exercises
 - [ ] Admin: user management screen, roles Admin / User / Coach in the web app
 - [ ] Exercise details: description, an anatomy map with primary and secondary muscles colored, a carousel with execution videos
 - [ ] Coaches: assign athletes, plan their workouts, see their history

@@ -110,20 +110,6 @@ mat-card-content:last-child {
     font-weight: 600;
 }
 
-.edit-input {
-    box-sizing: border-box;
-    width: 72px;
-    height: 40px;
-    padding: 0 8px;
-    border: 1px solid var(--mat-sys-primary);
-    border-radius: 4px;
-    background: var(--mat-sys-surface-container-high);
-    color: var(--mat-sys-on-surface);
-    font-family: var(--ft-font-numbers);
-    font-size: 22px;
-    font-weight: 600;
-}
-
 .row-actions {
     display: flex;
     justify-content: flex-end;

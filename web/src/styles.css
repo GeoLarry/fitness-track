@@ -51,3 +51,9 @@ body {
 .mat-mdc-raised-button .mat-mdc-button-touch-target {
     height: 72px;
 }
+
+/* Material leaves the corners square on phones. */
+.mat-bottom-sheet-container {
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+}
