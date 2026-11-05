@@ -86,3 +86,8 @@ The API has no migrations yet: after pulling changes to its data model, delete `
 - [ ] Nutrition: calories, macros, meals
 - [ ] Body measurements: weight, body fat, circumferences, with progress charts
 - [ ] Mobile polish / PWA
+
+## License
+
+© 2026 George D Larentzakis. All rights reserved.
+Shared for portfolio and evaluation purposes only, see [LICENSE](LICENSE).
