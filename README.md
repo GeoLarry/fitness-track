@@ -16,6 +16,16 @@ The Angular app in `web/` runs entirely on the .NET API in `api/`, built from my
 - Exercise picker over a catalog of 383 exercises, with search and exercise info (equipment, muscles, steps)
 - Custom exercises (muscles, equipment, numbered steps), visible only to the user who created them
 
+## Screenshots
+
+| Training | Live workout | Weight and reps | History |
+|---|---|---|---|
+| <img src="docs/screenshots/training.png" width="200" alt="Training page with Start workout, Plan a workout and two plans"> | <img src="docs/screenshots/workout.png" width="200" alt="Live workout with exercise cards, warm-ups, sets and the rest timer"> | <img src="docs/screenshots/wheels.png" width="200" alt="Wheels for kilos, quarter kilos and reps"> | <img src="docs/screenshots/history.png" width="200" alt="History with the last 7 days summary per muscle"> |
+
+On a computer the bottom bar becomes a side column:
+
+<img src="docs/screenshots/desktop-history.png" width="820" alt="History on a desktop screen with the side column and the weekly summary">
+
 ## Tech stack
 
 | Part | Technologies |
@@ -30,7 +40,7 @@ The Angular app in `web/` runs entirely on the .NET API in `api/`, built from my
 ```
 api/   .NET 10 backend (see api/README.md)
 web/   Angular frontend
-docs/  Design notes: exercise catalog data (AppData.xlsx), workout builder structure
+docs/  Design notes: exercise catalog data (AppData.xlsx), workout builder structure, screenshots
 ```
 
 ## Run locally
